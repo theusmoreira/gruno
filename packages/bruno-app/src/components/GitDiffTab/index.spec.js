@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { ThemeProvider } from 'styled-components';
@@ -105,7 +105,9 @@ describe('GitDiffTab', () => {
     expect(await screen.findByTestId('git-diff-empty')).toBeInTheDocument();
 
     invoke.mockResolvedValue({ ...gitDiff, patch, isTooLarge: false, oldParsed: null, newParsed: null });
-    store.dispatch(gitStatusReceived({ collectionUid: collection.uid, status: { isRepo: true }, refreshedAt: 2 }));
+    act(() => {
+      store.dispatch(gitStatusReceived({ collectionUid: collection.uid, status: { isRepo: true }, refreshedAt: 2 }));
+    });
 
     expect(await screen.findByTestId('git-patch-view')).toBeInTheDocument();
     expect(invoke).toHaveBeenCalledTimes(2);
