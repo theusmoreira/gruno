@@ -17,6 +17,7 @@ import { isElectron } from 'utils/common/platform';
 import StyledWrapper from './StyledWrapper';
 import 'swagger-ui-react/swagger-ui.css';
 import Devtools from 'components/Devtools';
+import GitPanel from 'components/GitPanel';
 import useGrpcEventListeners from 'utils/network/grpc-event-listeners';
 import useWsEventListeners from 'utils/network/ws-event-listeners';
 import Portal from 'components/Portal';
@@ -58,6 +59,12 @@ export default function Main() {
   const isAiPoppedOut = useSelector((state) => state.chat.isPoppedOut);
   const activeCollection = useSelector((state) => {
     if (!state.chat.isOpen) return null;
+    const activeTab = state.tabs.tabs.find((t) => t.uid === state.tabs.activeTabUid);
+    if (!activeTab) return null;
+    return state.collections.collections.find((c) => c.uid === activeTab.collectionUid) || null;
+  });
+  const gitPanelCollection = useSelector((state) => {
+    if (!state.git.isPanelOpen) return null;
     const activeTab = state.tabs.tabs.find((t) => t.uid === state.tabs.activeTabUid);
     if (!activeTab) return null;
     return state.collections.collections.find((c) => c.uid === activeTab.collectionUid) || null;
@@ -140,6 +147,7 @@ export default function Main() {
           {isAiSidebarOpen && activeCollection && !isAiPoppedOut && !showManageWorkspacePage && (
             <AiChatSidebar collection={activeCollection} />
           )}
+          {gitPanelCollection && !showManageWorkspacePage && <GitPanel collection={gitPanelCollection} />}
         </StyledWrapper>
       </div>
 

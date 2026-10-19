@@ -24,6 +24,7 @@ const ensureCollection = (state, collectionUid) => {
 };
 
 const initialState = {
+  isPanelOpen: false,
   byCollection: {}
 };
 
@@ -31,6 +32,18 @@ export const gitSlice = createSlice({
   name: 'git',
   initialState,
   reducers: {
+    toggleGitPanel: (state) => {
+      state.isPanelOpen = !state.isPanelOpen;
+    },
+    closeGitPanel: (state) => {
+      state.isPanelOpen = false;
+    },
+    clearGitError: (state, action) => {
+      const collectionGit = state.byCollection[action.payload.collectionUid];
+      if (collectionGit) {
+        collectionGit.error = null;
+      }
+    },
     gitStatusRequested: (state, action) => {
       ensureCollection(state, action.payload.collectionUid).loading = true;
     },
@@ -68,6 +81,10 @@ export const gitSlice = createSlice({
   }
 });
 
-export const { gitStatusRequested, gitStatusReceived, gitStatusFailed, gitOperationStarted, gitOperationFinished } = gitSlice.actions;
+export const {
+  toggleGitPanel,
+  closeGitPanel,
+  clearGitError,
+  gitStatusRequested, gitStatusReceived, gitStatusFailed, gitOperationStarted, gitOperationFinished } = gitSlice.actions;
 
 export default gitSlice.reducer;
