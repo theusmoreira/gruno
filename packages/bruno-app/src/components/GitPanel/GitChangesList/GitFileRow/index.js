@@ -16,13 +16,22 @@ const splitPath = (filePath) => {
     : { name: filePath.slice(separatorIndex + 1), directory: filePath.slice(0, separatorIndex) };
 };
 
-const GitFileRow = ({ file, statusCode, actionLabel, actionIcon, onAction, disabled }) => {
+const GitFileRow = ({ file, statusCode, actionLabel, actionIcon, onAction, onOpen, disabled }) => {
   const { name, directory } = splitPath(file.path);
 
   return (
     <li className="git-file-row" title={file.path} data-testid={`git-file-${file.path}`}>
-      <span className="git-file-name">{name}</span>
-      {directory && <span className="git-file-directory">{directory}</span>}
+      {onOpen ? (
+        <button type="button" className="git-file-open" onClick={() => onOpen(file)} aria-label={`Show diff of ${file.path}`}>
+          <span className="git-file-name">{name}</span>
+          {directory && <span className="git-file-directory">{directory}</span>}
+        </button>
+      ) : (
+        <>
+          <span className="git-file-name">{name}</span>
+          {directory && <span className="git-file-directory">{directory}</span>}
+        </>
+      )}
       <span className={`git-file-status status-${statusCode}`} title={STATUS_LABELS[statusCode]}>
         {statusCode}
       </span>

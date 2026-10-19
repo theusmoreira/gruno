@@ -37,6 +37,20 @@ const StyledWrapper = styled.div`
     }
   }
 
+  .git-file-open {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: inherit;
+  }
+
   .git-file-name {
     flex-shrink: 0;
     max-width: 60%;

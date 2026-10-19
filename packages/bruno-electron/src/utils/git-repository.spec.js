@@ -12,7 +12,10 @@ const {
   getCurrentGitBranch,
   getAheadBehindCount,
   pushGitChanges,
-  pullGitChanges
+  pullGitChanges,
+  getStagedFileDiff,
+  getUnstagedFileDiff,
+  getWorkingFileContentForVisualDiff
 } = require('./git');
 
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8' }).trim();
@@ -109,6 +112,45 @@ describe('git utils against real repositories', () => {
 
       expect(await getStagedFilePaths(repo)).toEqual([]);
       expect(fs.existsSync(filePath)).toBe(true);
+    });
+  });
+
+  describe('file diffs', () => {
+    const requestV1 = 'meta {\n  name: get user\n  type: http\n  seq: 1\n}\n\nget {\n  url: https://api.example.com/users/1\n}\n';
+    const requestV2 = requestV1.replace('/users/1', '/users/2');
+
+    it('reads the unstaged and staged patch and both parsed versions of a request', async () => {
+      const repo = createRepository(path.join(workspace, 'repo'));
+      writeFile(repo, 'get-user.bru', requestV1);
+      commitAll(repo, 'initial');
+      const filePath = writeFile(repo, 'get-user.bru', requestV2);
+
+      const unstagedPatch = await getUnstagedFileDiff(repo, filePath);
+      expect(unstagedPatch).toContain('-  url: https://api.example.com/users/1');
+      expect(unstagedPatch).toContain('+  url: https://api.example.com/users/2');
+
+      const unstaged = await getWorkingFileContentForVisualDiff(repo, 'get-user.bru', 'unstaged');
+      expect(unstaged.oldParsed.request.url).toBe('https://api.example.com/users/1');
+      expect(unstaged.newParsed.request.url).toBe('https://api.example.com/users/2');
+
+      await stageChanges(repo, [filePath]);
+      expect(await getStagedFileDiff(repo, filePath)).toContain('+  url: https://api.example.com/users/2');
+      const staged = await getWorkingFileContentForVisualDiff(repo, 'get-user.bru', 'staged');
+      expect(staged.newParsed.request.url).toBe('https://api.example.com/users/2');
+    });
+
+    it('shows an untracked file as entirely added', async () => {
+      const repo = createRepository(path.join(workspace, 'repo'));
+      writeFile(repo, 'README.md', '# repo');
+      commitAll(repo, 'initial');
+      const filePath = writeFile(repo, 'get-user.bru', requestV1);
+
+      const patch = await getUnstagedFileDiff(repo, filePath);
+      const contents = await getWorkingFileContentForVisualDiff(repo, 'get-user.bru', 'unstaged');
+
+      expect(patch).toContain('+  url: https://api.example.com/users/1');
+      expect(contents.oldParsed).toBeNull();
+      expect(contents.newParsed.request.url).toBe('https://api.example.com/users/1');
     });
   });
 

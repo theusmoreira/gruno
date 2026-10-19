@@ -13,7 +13,10 @@ jest.mock('../utils/git', () => ({
   unstageChanges: jest.fn(),
   commitChanges: jest.fn(),
   pushGitChanges: jest.fn(),
-  pullGitChanges: jest.fn()
+  pullGitChanges: jest.fn(),
+  getStagedFileDiff: jest.fn(),
+  getUnstagedFileDiff: jest.fn(),
+  getWorkingFileContentForVisualDiff: jest.fn()
 }));
 jest.mock('../utils/filesystem', () => ({
   createDirectory: jest.fn(),
@@ -33,7 +36,8 @@ const {
   stageGitFiles,
   commitGitChanges,
   pushGitBranch,
-  pullGitBranch
+  pullGitBranch,
+  getGitFileDiff
 } = require('./git');
 
 describe('getCollectionGitRemoteUrl', () => {
@@ -226,6 +230,55 @@ describe('git panel handlers', () => {
 
     await expect(pullGitBranch(context, { collectionPath, processUid: 'p2', strategy: '--rebase' }))
       .rejects.toThrow('Pull strategy is not valid');
+  });
+});
+
+describe('getGitFileDiff', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    gitUtils.getCollectionGitRootPath.mockReturnValue(repoRoot);
+    gitUtils.getWorkingFileContentForVisualDiff.mockResolvedValue({ oldParsed: { name: 'old' }, newParsed: { name: 'new' } });
+  });
+
+  it('returns the patch and the parsed request versions of an unstaged file', async () => {
+    gitUtils.getUnstagedFileDiff.mockResolvedValue('@@ -1 +1 @@\n-v1\n+v2\n');
+
+    const diff = await getGitFileDiff(context, { collectionPath, file: 'collections/api/a.bru', changeType: 'unstaged' });
+
+    expect(gitUtils.getUnstagedFileDiff).toHaveBeenCalledWith(repoRoot, path.join(collectionPath, 'a.bru'));
+    expect(gitUtils.getWorkingFileContentForVisualDiff).toHaveBeenCalledWith(repoRoot, 'collections/api/a.bru', 'unstaged');
+    expect(diff).toEqual({
+      path: 'collections/api/a.bru',
+      changeType: 'unstaged',
+      patch: '@@ -1 +1 @@\n-v1\n+v2\n',
+      isTooLarge: false,
+      oldParsed: { name: 'old' },
+      newParsed: { name: 'new' }
+    });
+  });
+
+  it('reads the staged patch for staged changes', async () => {
+    gitUtils.getStagedFileDiff.mockResolvedValue('+added\n');
+
+    await getGitFileDiff(context, { collectionPath, file: 'collections/api/a.bru', changeType: 'staged' });
+
+    expect(gitUtils.getStagedFileDiff).toHaveBeenCalledWith(repoRoot, path.join(collectionPath, 'a.bru'));
+    expect(gitUtils.getUnstagedFileDiff).not.toHaveBeenCalled();
+  });
+
+  it('drops a patch too large to render', async () => {
+    gitUtils.getUnstagedFileDiff.mockResolvedValue('+'.repeat(500001));
+
+    const diff = await getGitFileDiff(context, { collectionPath, file: 'collections/api/a.bru', changeType: 'unstaged' });
+
+    expect(diff).toMatchObject({ patch: '', isTooLarge: true });
+  });
+
+  it('rejects an unknown change type and files outside the collection', async () => {
+    await expect(getGitFileDiff(context, { collectionPath, file: 'collections/api/a.bru', changeType: 'HEAD~1' }))
+      .rejects.toThrow('Change type is not valid');
+    await expect(getGitFileDiff(context, { collectionPath, file: 'README.md', changeType: 'unstaged' }))
+      .rejects.toThrow('outside the collection');
   });
 });
 

@@ -2,6 +2,7 @@ import { uuid } from 'utils/common';
 import { formatIpcError } from 'utils/common/error';
 import { findCollectionByUid } from 'utils/collections';
 import { removeGitOperationProgress } from 'providers/ReduxStore/slices/app';
+import { addTab } from 'providers/ReduxStore/slices/tabs';
 import {
   gitStatusRequested,
   gitStatusReceived,
@@ -99,3 +100,16 @@ export const pushGitBranch = (collectionUid) =>
 
 export const pullGitBranch = (collectionUid) =>
   runGitOperation({ collectionUid, operation: 'pull', channel: 'renderer:git-pull', withProgress: true });
+
+export const openGitDiffTab = (collectionUid, file, changeType) => (dispatch) => {
+  const fileName = file.path.split('/').pop();
+  dispatch(
+    addTab({
+      uid: `${collectionUid}-git-diff-${changeType}-${file.path}`,
+      collectionUid,
+      type: 'git-diff',
+      tabName: changeType === 'staged' ? `${fileName} (staged)` : fileName,
+      gitDiff: { path: file.path, changeType }
+    })
+  );
+};

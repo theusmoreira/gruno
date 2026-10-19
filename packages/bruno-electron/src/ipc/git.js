@@ -14,13 +14,19 @@ const {
   unstageChanges,
   commitChanges,
   pushGitChanges,
-  pullGitChanges
+  pullGitChanges,
+  getStagedFileDiff,
+  getUnstagedFileDiff,
+  getWorkingFileContentForVisualDiff
 } = require('../utils/git');
 const { toReadableGitError } = require('../utils/git-errors');
 const { createDirectory, removeDirectory } = require('../utils/filesystem');
 
 const GIT_REMOTE = 'origin';
 const PULL_STRATEGIES = ['--ff-only', '--no-rebase'];
+const DIFF_CHANGE_TYPES = ['staged', 'unstaged'];
+// A request file diff is a few KB; past this the text view would freeze the renderer.
+const MAX_PATCH_LENGTH = 500000;
 
 const getCollectionGitRemoteUrl = async (collectionPath) => {
   try {
@@ -233,6 +239,30 @@ const pullGitBranch = async ({ collectionWatcher, mainWindow }, { collectionPath
   return { ok: true };
 };
 
+const getGitFileDiff = async ({ collectionWatcher }, { collectionPath, file, changeType } = {}) => {
+  const gitRootPath = requireCollectionRepository(collectionWatcher, collectionPath);
+  if (!DIFF_CHANGE_TYPES.includes(changeType)) {
+    throw new Error('Change type is not valid');
+  }
+  const [absolutePath] = resolveCollectionFiles({ collectionPath, gitRootPath, files: [file] });
+  const relativePath = path.relative(gitRootPath, absolutePath).split(path.sep).join('/');
+
+  const [patch, contents] = await Promise.all([
+    changeType === 'staged' ? getStagedFileDiff(gitRootPath, absolutePath) : getUnstagedFileDiff(gitRootPath, absolutePath),
+    getWorkingFileContentForVisualDiff(gitRootPath, relativePath, changeType)
+  ]);
+  const isTooLarge = patch.length > MAX_PATCH_LENGTH;
+
+  return {
+    path: relativePath,
+    changeType,
+    patch: isTooLarge ? '' : patch,
+    isTooLarge,
+    oldParsed: contents.oldParsed,
+    newParsed: contents.newParsed
+  };
+};
+
 const registerGitIpc = (mainWindow, collectionWatcher) => {
   const context = { mainWindow, collectionWatcher };
 
@@ -264,6 +294,7 @@ const registerGitIpc = (mainWindow, collectionWatcher) => {
   ipcMain.handle('renderer:git-commit', (event, args) => commitGitChanges(context, args));
   ipcMain.handle('renderer:git-push', (event, args) => pushGitBranch(context, args));
   ipcMain.handle('renderer:git-pull', (event, args) => pullGitBranch(context, args));
+  ipcMain.handle('renderer:git-file-diff', (event, args) => getGitFileDiff(context, args));
 };
 
 module.exports = registerGitIpc;
@@ -278,3 +309,4 @@ module.exports.unstageGitFiles = unstageGitFiles;
 module.exports.commitGitChanges = commitGitChanges;
 module.exports.pushGitBranch = pushGitBranch;
 module.exports.pullGitBranch = pullGitBranch;
+module.exports.getGitFileDiff = getGitFileDiff;

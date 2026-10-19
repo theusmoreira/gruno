@@ -1,7 +1,7 @@
 import { useDispatch } from 'react-redux';
 import { IconMinus, IconPlus } from '@tabler/icons';
 import ActionIcon from 'ui/ActionIcon';
-import { stageGitFiles, unstageGitFiles } from 'providers/ReduxStore/slices/git/actions';
+import { stageGitFiles, unstageGitFiles, openGitDiffTab } from 'providers/ReduxStore/slices/git/actions';
 import GitFileRow from './GitFileRow';
 import StyledWrapper from './StyledWrapper';
 
@@ -76,6 +76,7 @@ const GitChangesList = ({ collectionUid, gitState }) => {
               actionLabel="Unstage"
               actionIcon={<IconMinus size={14} strokeWidth={1.5} />}
               onAction={(target) => unstage([target])}
+              onOpen={(target) => dispatch(openGitDiffTab(collectionUid, target, 'staged'))}
               disabled={busy}
             />
           ))}
@@ -101,6 +102,7 @@ const GitChangesList = ({ collectionUid, gitState }) => {
               actionLabel="Stage"
               actionIcon={<IconPlus size={14} strokeWidth={1.5} />}
               onAction={(target) => stage([target])}
+              onOpen={(target) => dispatch(openGitDiffTab(collectionUid, target, 'unstaged'))}
               disabled={busy}
             />
           ))}
