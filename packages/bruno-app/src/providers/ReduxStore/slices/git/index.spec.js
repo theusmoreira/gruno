@@ -1,3 +1,8 @@
+let mockUidCounter = 0;
+jest.mock('nanoid', () => ({
+  customAlphabet: () => () => `uid-${++mockUidCounter}`
+}));
+
 import { configureStore } from '@reduxjs/toolkit';
 import appReducer, { updateGitOperationProgress } from 'providers/ReduxStore/slices/app';
 import gitReducer from './index';
