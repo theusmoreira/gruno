@@ -377,7 +377,14 @@ const getCurrentGitBranch = async (gitRootPath) => {
         reject(err);
         return;
       }
-      resolve(branches.current);
+      if (branches.current) {
+        resolve(branches.current);
+        return;
+      }
+      // A repository without commits lists no branches, but HEAD already names the branch to be born.
+      git.raw(['symbolic-ref', '--short', '-q', 'HEAD'])
+        .then((name) => resolve(name.trim()))
+        .catch(() => resolve(''));
     });
   });
 };

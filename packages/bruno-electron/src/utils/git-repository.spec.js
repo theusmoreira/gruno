@@ -163,6 +163,7 @@ describe('git utils against real repositories', () => {
 
       expect(fs.existsSync(path.join(collectionPath, '.git'))).toBe(true);
       expect(git(collectionPath, 'symbolic-ref', '--short', 'HEAD')).toBe('main');
+      expect(await getCurrentGitBranch(collectionPath)).toBe('main');
     });
   });
 
