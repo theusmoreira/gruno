@@ -162,6 +162,24 @@ export const readVariableValue = async (
   return lines.join('\n').replace(/\u200b/g, '').trim();
 };
 
+/**
+ * The text of every token of one type in a value cell, joined. The link marker
+ * wraps a URL inside a string in its own span, splitting one string token into
+ * several `.cm-string` spans once its debounced pass has run.
+ */
+export const readValueTokenText = async (
+  page: Page,
+  section: VariablesSection,
+  name: string,
+  tokenType: ValueTokenType
+): Promise<string> => {
+  const parts = await buildVariablesTabLocators(page)
+    .row(section, name)
+    .locator(`.${TOKEN_CLASS[tokenType]}`)
+    .allInnerTexts();
+  return parts.join('');
+};
+
 /** How far the shared section scroller is scrolled. */
 export const getVariablesScrollTop = (page: Page): Promise<number> =>
   buildVariablesTabLocators(page).scroller().evaluate((el) => el.scrollTop);

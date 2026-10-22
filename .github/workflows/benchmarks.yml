@@ -1,4 +1,5 @@
 name: Benchmarks
+# Runs on demand: it compares against baselines recorded on the upstream project's machines.
 on:
   workflow_dispatch:
     inputs:
@@ -6,8 +7,6 @@ on:
         description: 'Update baseline with current results instead of comparing'
         type: boolean
         default: false
-  pull_request:
-    branches: [main, 'release/v*']
 
 jobs:
   benchmark:

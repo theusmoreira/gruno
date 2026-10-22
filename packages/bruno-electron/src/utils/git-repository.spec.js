@@ -43,6 +43,9 @@ const commitAll = (root, message) => {
 
 const fakeWindow = () => ({ webContents: { send: jest.fn() } });
 
+// Each test spawns several real git processes; on Windows runners that alone can exceed Jest's 5s default.
+jest.setTimeout(60000);
+
 describe('git utils against real repositories', () => {
   let workspace;
 
@@ -51,7 +54,7 @@ describe('git utils against real repositories', () => {
   });
 
   afterEach(() => {
-    fs.rmSync(workspace, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+    fs.rmSync(workspace, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
   });
 
   describe('getChangedFilesInCollectionGit', () => {

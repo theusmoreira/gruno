@@ -1,6 +1,6 @@
 name: Release
 
-# Pushing a tag such as v2.0.1 builds the installers on macOS, Windows and Linux and publishes them
+# Pushing a tag such as v2.0.1 builds the Windows and Linux installers and publishes them
 # as a GitHub Release. The tag must match the version in packages/bruno-electron and packages/bruno-app.
 on:
   push:
@@ -29,10 +29,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: macOS
-            os: macos-latest
-            dist: mac
-            builder-args: --publish never
+          # macOS is left out until the project has an Apple Developer ID to sign and notarize with.
           - name: Windows
             os: windows-latest
             dist: win
@@ -76,7 +73,7 @@ jobs:
       - name: Package the app
         shell: bash
         env:
-          # No Apple Developer ID yet: build unsigned instead of picking up a random keychain identity.
+          # Nothing is signed yet: stop electron-builder from picking up a random certificate.
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: node scripts/build-electron.js --dist=${{ matrix.dist }} ${{ matrix.builder-args }}
 
@@ -85,7 +82,7 @@ jobs:
         run: |
           mkdir -p release-assets
           find packages/bruno-electron/out -maxdepth 1 -type f \
-            \( -name '*.dmg' -o -name '*.pkg' -o -name '*.zip' -o -name '*.exe' -o -name '*.AppImage' -o -name '*.deb' \) \
+            \( -name '*.exe' -o -name '*.AppImage' -o -name '*.deb' \) \
             -exec cp {} release-assets/ \;
           ls -la release-assets
           if [ -z "$(ls -A release-assets)" ]; then

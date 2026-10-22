@@ -93,8 +93,11 @@ jobs:
           comment_mode: off
           check_run: false
 
+  # The full E2E suite takes over three hours on GitHub-hosted Windows runners; it runs on demand only.
+  # Linux runs it on every push and pull request.
   e2e-test:
     name: Playwright E2E Tests (Windows)
+    if: github.event_name == 'workflow_dispatch'
     timeout-minutes: 240
     runs-on: windows-latest
     steps:

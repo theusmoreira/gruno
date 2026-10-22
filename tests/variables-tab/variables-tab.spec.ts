@@ -12,6 +12,7 @@ import {
   openVariableDrawer,
   openVariablesTab,
   readClipboard,
+  readValueTokenText,
   readVariableValue,
   reopenVariablesTab,
   scrollValueEditorTo,
@@ -120,7 +121,7 @@ test.describe('Variables tab', () => {
     });
 
     await test.step('Each scalar is typed by the editor, not just spelled that way', async () => {
-      await expect(variablesTab.valueToken('environment', 'api_url', 'string')).toHaveText('"https://api.example.com"');
+      await expect.poll(() => readValueTokenText(page, 'environment', 'api_url', 'string')).toBe('"https://api.example.com"');
       await expect(variablesTab.valueToken('environment', 'page_size', 'number')).toHaveText('25');
       await expect(variablesTab.valueToken('environment', 'feature_enabled', 'boolean')).toHaveText('true');
       await expect(variablesTab.valueToken('runtime', 'retry_count', 'number')).toHaveText('3');

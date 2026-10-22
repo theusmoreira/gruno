@@ -25,9 +25,9 @@ It runs fully offline: no account, no login and no cloud sync.
 
 ## Download
 
-Installers for macOS, Windows and Linux are published on the [Releases page](https://github.com/theusmoreira/gruno/releases).
+Installers for Windows and Linux are published on the [Releases page](https://github.com/theusmoreira/gruno/releases).
 
-The macOS build is not signed yet. The first time you open it, right-click the app and choose **Open**, or run:
+There is no macOS installer yet. [Build it from source](#build-from-source) with `npm run build:electron:mac`. The build is not signed, so the first time you open it, right-click the app and choose **Open**, or run:
 
 ```bash
 xattr -dr com.apple.quarantine /Applications/Gruno.app
