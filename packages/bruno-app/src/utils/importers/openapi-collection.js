@@ -5,7 +5,7 @@ export const convertOpenapiToBruno = (data, options = {}) => {
   try {
     return openApiToBruno(data, options);
   } catch (err) {
-    console.error('Error converting OpenAPI to Bruno:', err);
+    console.error('Error converting OpenAPI to Gruno:', err);
     throw new BrunoError('Import collection failed: ' + err.message);
   }
 };

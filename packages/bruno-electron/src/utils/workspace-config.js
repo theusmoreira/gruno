@@ -10,8 +10,16 @@ const posixifyPath = (p) => (p ? p.replace(/\\/g, '/') : p);
 
 const WORKSPACE_TYPE = 'workspace';
 const OPENCOLLECTION_VERSION = '1.0.0';
-const GITIGNORE_MANAGED_BLOCK_START = '# Bruno managed collection remotes';
-const GITIGNORE_MANAGED_BLOCK_END = '# End Bruno managed collection remotes';
+const GITIGNORE_MANAGED_BLOCK_START = '# Gruno managed collection remotes';
+const GITIGNORE_MANAGED_BLOCK_END = '# End Gruno managed collection remotes';
+// Workspaces created by Bruno carry its marker; the block is still found and extended in place.
+const LEGACY_GITIGNORE_MANAGED_BLOCK_MARKERS = [
+  { start: '# Bruno managed collection remotes', end: '# End Bruno managed collection remotes' }
+];
+const GITIGNORE_MANAGED_BLOCK_MARKERS = [
+  { start: GITIGNORE_MANAGED_BLOCK_START, end: GITIGNORE_MANAGED_BLOCK_END },
+  ...LEGACY_GITIGNORE_MANAGED_BLOCK_MARKERS
+];
 
 const quoteYamlValue = (value) => {
   if (typeof value !== 'string') {
@@ -379,13 +387,14 @@ const getCollectionGitignoreEntry = (workspacePath, collectionPath) => {
 };
 
 const findGitignoreManagedBlock = (lines) => {
-  const start = lines.findIndex((line) => line.trim() === GITIGNORE_MANAGED_BLOCK_START);
-  if (start === -1) return null;
+  for (const markers of GITIGNORE_MANAGED_BLOCK_MARKERS) {
+    const start = lines.findIndex((line) => line.trim() === markers.start);
+    if (start === -1) continue;
 
-  const end = lines.findIndex((line, index) => index > start && line.trim() === GITIGNORE_MANAGED_BLOCK_END);
-  if (end === -1) return null;
-
-  return { start, end };
+    const end = lines.findIndex((line, index) => index > start && line.trim() === markers.end);
+    if (end !== -1) return { start, end };
+  }
+  return null;
 };
 
 const addCollectionToWorkspaceGitignore = async (workspacePath, collectionPath) => {

@@ -8,7 +8,9 @@ const { safeParseJSON, safeStringifyJSON } = require('./common');
 const { preferencesUtil } = require('../store/preferences');
 const qs = require('qs');
 
-const BRUNO_OAUTH2_CALLBACK_URL = 'https://oauth.usebruno.com/callback';
+// The app registers the gruno:// scheme, so the system browser hands the callback straight back to it;
+// the in-app window intercepts the redirect before the scheme is ever opened.
+const BRUNO_OAUTH2_CALLBACK_URL = 'gruno://app/oauth2/callback';
 
 const oauth2Store = new Oauth2Store();
 

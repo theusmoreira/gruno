@@ -16,6 +16,7 @@ import { getDefaultRequestPaneTab } from 'utils/collections';
 import { normalizePath } from 'utils/common/path';
 import { normalizeQuery, isValidQuery, highlightText, sortResults, getTypeLabel, getItemPath } from './utils/searchUtils';
 import { SEARCH_TYPES, MATCH_TYPES, SEARCH_CONFIG, DOCUMENTATION_RESULT } from './constants';
+import { GRUNO_REPOSITORY_URL } from 'utils/common/links';
 import StyledWrapper from './StyledWrapper';
 
 const GlobalSearchModal = ({ isOpen, onClose }) => {
@@ -61,7 +62,7 @@ const GlobalSearchModal = ({ isOpen, onClose }) => {
 
     // Check for documentation match
     const queryLower = searchTerms.join(' ');
-    if (['documentation', 'docs', 'bruno docs'].some((term) => term.includes(queryLower))) {
+    if (['documentation', 'docs', 'gruno docs'].some((term) => term.includes(queryLower))) {
       results.push(DOCUMENTATION_RESULT);
     }
 
@@ -247,7 +248,7 @@ const GlobalSearchModal = ({ isOpen, onClose }) => {
     ensureCollectionIsMounted(targetCollection);
 
     if (result.type === SEARCH_TYPES.DOCUMENTATION) {
-      window.open('https://docs.usebruno.com/', '_blank');
+      window.open(GRUNO_REPOSITORY_URL, '_blank');
       onClose();
       return;
     }

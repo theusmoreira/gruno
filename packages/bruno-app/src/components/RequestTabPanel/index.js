@@ -48,7 +48,6 @@ import OpenAPISpecTab from 'components/OpenAPISpecTab';
 import ApiSpecTab from 'components/ApiSpecTab';
 import MockServerDashboard from 'components/MockServer/MockServerDashboard';
 import MockResponse from 'components/MockServer/MockResponse';
-import ChangelogTab from 'components/ChangelogTab';
 import { resolveMockServerInstance } from 'utils/mock-server/mock-server-instances';
 import CollapsedPanelIndicator from './CollapsedPanelIndicator';
 import { clampRequestHeightForResponse } from './paneSize';
@@ -433,10 +432,6 @@ const RequestTabPanel = () => {
 
   if (focusedTab.type === 'preferences') {
     return <Preferences />;
-  }
-
-  if (focusedTab.type === 'changelog') {
-    return <ChangelogTab collectionUid={focusedTab.collectionUid} />;
   }
 
   if (focusedTab.type === 'workspaceOverview') {

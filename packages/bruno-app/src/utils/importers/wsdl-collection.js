@@ -42,7 +42,7 @@ export const convertWsdlToBruno = async (data, filePath) => {
   try {
     return await wsdlToBruno(data, getWsdlImportOptions(filePath));
   } catch (err) {
-    console.error('Error converting WSDL to Bruno:', err);
+    console.error('Error converting WSDL to Gruno:', err);
     throw new BrunoError(err.message);
   }
 };

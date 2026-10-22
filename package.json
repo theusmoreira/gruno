@@ -1,5 +1,5 @@
 {
-  "name": "usebruno",
+  "name": "gruno",
   "private": true,
   "workspaces": [
     "packages/bruno-app",
@@ -19,7 +19,7 @@
     "packages/bruno-filestore",
     "packages/bruno-sqlite"
   ],
-  "homepage": "https://usebruno.com",
+  "homepage": "https://github.com/theusmoreira/gruno",
   "devDependencies": {
     "@eslint/compat": "^1.3.2",
     "@faker-js/faker": "^7.6.0",

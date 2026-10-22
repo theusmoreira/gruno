@@ -5,7 +5,7 @@ export const convertInsomniaToBruno = (data) => {
   try {
     return insomniaToBruno(data);
   } catch (err) {
-    console.error('Error converting Insomnia to Bruno:', err);
+    console.error('Error converting Insomnia to Gruno:', err);
     throw new BrunoError('Import collection failed: ' + err.message);
   }
 };

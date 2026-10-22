@@ -8,7 +8,13 @@ const notarize = async function (params) {
     return;
   }
 
-  let appId = 'com.usebruno.app';
+  // Notarization needs an Apple Developer account; builds without one stay unsigned and skip it.
+  if (!process.env.APPLE_ID || !process.env.APPLE_ID_PASSWORD || !process.env.APPLE_TEAM_ID) {
+    console.log('Skipping notarization: APPLE_ID, APPLE_ID_PASSWORD or APPLE_TEAM_ID is not set');
+    return;
+  }
+
+  const appId = params.packager.appInfo.id;
 
   let appPath = path.join(params.appOutDir, `${params.packager.appInfo.productFilename}.app`);
   if (!fs.existsSync(appPath)) {
@@ -17,7 +23,7 @@ const notarize = async function (params) {
   }
 
   console.log(`Notarizing ${appId} found at ${appPath} using Apple ID ${process.env.APPLE_ID}`);
-  const teamId = 'W7LPPWA48L';
+  const teamId = process.env.APPLE_TEAM_ID;
   try {
     await electron_notarize.notarize({
       tool: 'notarytool',

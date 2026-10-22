@@ -134,7 +134,7 @@ const renderModal = (options) => {
 };
 
 const chooseCollectionSource = async (user) => {
-  await user.click(screen.getByLabelText('Bruno Collection'));
+  await user.click(screen.getByLabelText('Gruno Collection'));
 };
 
 const chooseFileSystemSource = async (user) => {
@@ -262,7 +262,7 @@ describe('CreateApiSpec — collection source', () => {
     expect(screen.getByLabelText('Name')).toHaveValue('');
     expect(screen.getByLabelText('Location')).toHaveValue('/home/dev/Documents/specs');
 
-    await user.click(screen.getByLabelText('Bruno Collection'));
+    await user.click(screen.getByLabelText('Gruno Collection'));
     expect(screen.getByLabelText('Name')).toHaveValue('Petstore');
     expect(screen.getByLabelText('Location')).toHaveValue('/home/dev/Documents/specs');
   });
@@ -677,7 +677,7 @@ describe('CreateApiSpec — each source keeps its own data', () => {
     await fetchSpecUrl(user);
     await typeName(user, 'url-name');
 
-    await chooseSource(user, 'Bruno Collection');
+    await chooseSource(user, 'Gruno Collection');
     expect(screen.getByLabelText('Name')).toHaveValue('');
     await pickPetstore(user);
     await typeName(user, 'workspace-name');
@@ -694,7 +694,7 @@ describe('CreateApiSpec — each source keeps its own data', () => {
     expect(screen.getByLabelText('Name')).toHaveValue('url-name');
     await chooseSource(user, 'Blank Spec');
     expect(screen.getByLabelText('Name')).toHaveValue('blank-name');
-    await chooseSource(user, 'Bruno Collection');
+    await chooseSource(user, 'Gruno Collection');
     expect(screen.getByLabelText('Name')).toHaveValue('workspace-name');
     await chooseTab(user, 'From filesystem');
     expect(screen.getByLabelText('Name')).toHaveValue('filesystem-name');
@@ -713,7 +713,7 @@ describe('CreateApiSpec — each source keeps its own data', () => {
 
     await chooseSource(user, 'Spec URL');
     expect(screen.getByLabelText('Location')).toHaveValue('/home/dev/specs/picked');
-    await chooseSource(user, 'Bruno Collection');
+    await chooseSource(user, 'Gruno Collection');
     expect(screen.getByLabelText('Location')).toHaveValue('/home/dev/specs/picked');
     await chooseTab(user, 'From filesystem');
     expect(screen.getByLabelText('Location')).toHaveValue('/home/dev/specs/picked');
@@ -732,7 +732,7 @@ describe('CreateApiSpec — each source keeps its own data', () => {
 
     await chooseSource(user, 'Spec URL');
     await fetchSpecUrl(user);
-    await chooseSource(user, 'Bruno Collection');
+    await chooseSource(user, 'Gruno Collection');
     await pickPetstore(user);
 
     await chooseSource(user, 'Blank Spec');
@@ -748,7 +748,7 @@ describe('CreateApiSpec — each source keeps its own data', () => {
     const user = userEvent.setup();
     renderModal();
 
-    await chooseSource(user, 'Bruno Collection');
+    await chooseSource(user, 'Gruno Collection');
     await pickPetstore(user);
 
     await chooseSource(user, 'Spec URL');
@@ -766,7 +766,7 @@ describe('CreateApiSpec — each source keeps its own data', () => {
     await chooseSource(user, 'Spec URL');
     await fetchSpecUrl(user);
 
-    await chooseSource(user, 'Bruno Collection');
+    await chooseSource(user, 'Gruno Collection');
     await pickPetstore(user);
     await user.click(screen.getByText('Create'));
 
@@ -779,7 +779,7 @@ describe('CreateApiSpec — each source keeps its own data', () => {
     browseDirectory.mockReturnValue(Promise.resolve('/home/dev/elsewhere/outside-collection'));
     renderModal();
 
-    await chooseSource(user, 'Bruno Collection');
+    await chooseSource(user, 'Gruno Collection');
     await pickPetstore(user);
 
     await chooseTab(user, 'From filesystem');

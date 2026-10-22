@@ -1,14 +1,5 @@
 import { interpolate } from '@usebruno/common';
 import { DEFAULT_SCHEME, hasExplicitScheme } from '@usebruno/common/utils';
-import { version as appVersion } from '../../../package.json';
-
-/**
- * Tags a docs URL with the running app version, e.g. /docs/ai -> /docs/ai?version=2.0.0.
- */
-export const getDocsUrlWithVersion = (url) => {
-  const separator = url.includes('?') ? '&' : '?';
-  return `${url}${separator}version=${appVersion}`;
-};
 
 const hasLength = (str) => {
   if (!str || !str.length) {

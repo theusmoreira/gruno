@@ -113,7 +113,7 @@ const importBrunoEnvironment = (parsedFiles) => {
     return result;
   } catch (err) {
     console.error(err);
-    throw err instanceof BrunoError ? err : new BrunoError('Import Bruno environment failed');
+    throw err instanceof BrunoError ? err : new BrunoError('Import Gruno environment failed');
   }
 };
 

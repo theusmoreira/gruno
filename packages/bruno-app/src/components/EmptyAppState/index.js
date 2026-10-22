@@ -1,15 +1,9 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { IconAppWindow } from '@tabler/icons';
 import Button from 'ui/Button';
 import StyledWrapper from './StyledWrapper';
 
-const APPS_DOCS_URL = 'https://link.usebruno.com/apps';
-
 const EmptyAppState = ({ title = 'No app yet', hint, onAddCode }) => {
-  const openAppsDocs = useCallback(() => {
-    window?.ipcRenderer?.openExternal(APPS_DOCS_URL);
-  }, []);
-
   return (
     <StyledWrapper data-testid="empty-app-state">
       <div className="empty-app-inner">
@@ -26,15 +20,6 @@ const EmptyAppState = ({ title = 'No app yet', hint, onAddCode }) => {
               data-testid="empty-app-add-code"
             >
               Add app code
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              color="secondary"
-              onClick={openAppsDocs}
-              data-testid="empty-app-learn-more"
-            >
-              Learn more
             </Button>
           </div>
         ) : null}

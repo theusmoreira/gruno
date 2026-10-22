@@ -3,8 +3,8 @@ require('dotenv').config({ path: process.env.DOTENV_PATH });
 const isBenchmark = process.env.BRUNO_BENCHMARK === 'true';
 
 const config = {
-  appId: 'com.usebruno.app',
-  productName: isBenchmark ? 'Bruno Benchmark' : 'Bruno',
+  appId: 'io.github.theusmoreira.gruno',
+  productName: isBenchmark ? 'Gruno Benchmark' : 'Gruno',
   extraMetadata: {
     brunoBuild: {
       benchmark: isBenchmark,
@@ -43,16 +43,17 @@ const config = {
     ],
     icon: 'resources/icons/mac/icon.icns',
     hardenedRuntime: true,
-    identity: 'Anoop MD (W7LPPWA48L)',
+    // Unsigned until the project has an Apple Developer ID; set CSC_NAME (and the notarize env vars) to sign.
+    identity: process.env.CSC_NAME || null,
     entitlements: 'resources/entitlements.mac.plist',
     entitlementsInherit: 'resources/entitlements.mac.plist',
     notarize: false,
     requirements: 'resources/app-requirements.txt',
     protocols: [
       {
-        name: 'Bruno',
+        name: 'Gruno',
         schemes: [
-          'bruno'
+          'gruno'
         ]
       }
     ]
@@ -76,13 +77,13 @@ const config = {
     ],
     protocols: [
       {
-        name: 'Bruno',
-        schemes: ['bruno']
+        name: 'Gruno',
+        schemes: ['gruno']
       }
     ],
     category: 'Development',
     desktop: {
-      MimeType: 'x-scheme-handler/bruno;'
+      MimeType: 'x-scheme-handler/gruno;'
     }
   },
   deb: {
@@ -119,7 +120,7 @@ const config = {
       }
     ],
     sign: null,
-    publisherName: 'Bruno Software Inc'
+    publisherName: 'Gruno'
   },
   nsis: {
     include: 'resources/installer.nsh',

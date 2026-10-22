@@ -1869,7 +1869,7 @@ const DEFAULT_APP_STARTER = `<!DOCTYPE html>
   </style>
 </head>
 <body>
-  <h2>Hello from a Bruno app</h2>
+  <h2>Hello from a Gruno app</h2>
   <p>This app can list request in the collection.</p>
   <button id="refresh">List requests</button>
   <pre id="out">click "List requests"</pre>

@@ -42,8 +42,8 @@ const authorizeUserInWindow = ({ authorizeUrl, callbackUrl, session, additionalH
       event.preventDefault();
       const shouldAllow = !preferencesUtil.shouldVerifyTls();
       if (!shouldAllow) {
-        console.error(`Bruno OAuth: SSL Certificate verification failed for ${url}. Error: ${error}`);
-        console.error('Bruno OAuth: Disable "SSL/TLS Certificate Verification" in settings to proceed with OAuth flows that use self-signed certificates.');
+        console.error(`Gruno OAuth: SSL Certificate verification failed for ${url}. Error: ${error}`);
+        console.error('Gruno OAuth: Disable "SSL/TLS Certificate Verification" in settings to proceed with OAuth flows that use self-signed certificates.');
       }
       callback(shouldAllow);
     });

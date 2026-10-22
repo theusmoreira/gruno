@@ -107,7 +107,7 @@ export const prepareCollectionForExport = (collection, version) => {
   transformItem(collection.items);
 
   collection.exportedAt = new Date().toISOString();
-  collection.exportedUsing = version ? `Bruno/${version}` : 'Bruno';
+  collection.exportedUsing = version ? `Gruno/${version}` : 'Gruno';
 
   return collection;
 };

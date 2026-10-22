@@ -65,7 +65,6 @@ const ApiSpecWatcher = require('./app/apiSpecsWatcher');
 const { loadWindowState, saveBounds, saveMaximized } = require('./utils/window');
 const { preferencesUtil, getPreferences, savePreferences } = require('./store/preferences');
 const { globalEnvironmentsManager } = require('./store/workspace-environments');
-const registerNotificationsIpc = require('./ipc/notifications');
 const registerGlobalEnvironmentsIpc = require('./ipc/global-environments');
 const registerAppDocumentIpc = require('./ipc/app-document');
 const AppDocuments = require('./app/app-documents');
@@ -91,7 +90,7 @@ AppDocuments.registerScheme();
 // Reference: https://content-security-policy.com/
 const contentSecurityPolicy = [
   'default-src \'self\'',
-  'connect-src \'self\' https://*.posthog.com',
+  'connect-src \'self\'',
   'font-src \'self\' https: data:;',
   'frame-src data:',
   'script-src \'self\' data:',
@@ -164,13 +163,13 @@ if (useSingleInstance && !gotTheLock) {
   // This is the primary instance (or single instance is disabled)
 
   // Try to remove any existing registrations
-  app.removeAsDefaultProtocolClient('bruno');
-  // Register as default handler for `bruno://` protocol URLs
-  app.setAsDefaultProtocolClient('bruno');
+  app.removeAsDefaultProtocolClient('gruno');
+  // Register as default handler for `gruno://` protocol URLs
+  app.setAsDefaultProtocolClient('gruno');
 
   if (isLinux) {
     try {
-      execSync('xdg-mime default bruno.desktop x-scheme-handler/bruno');
+      execSync('xdg-mime default gruno.desktop x-scheme-handler/gruno');
     } catch (err) {}
   }
 
@@ -260,7 +259,7 @@ app.on('ready', async () => {
       preload: path.join(__dirname, 'preload.js'),
       webviewTag: true
     },
-    title: 'Bruno',
+    title: 'Gruno',
     icon: path.join(__dirname, 'about/256x256.png'),
     titleBarStyle: isMac ? 'hiddenInset' : isWindows ? 'hidden' : undefined,
     frame: isLinux ? false : true,
@@ -390,7 +389,7 @@ app.on('ready', async () => {
     } else {
       console.error(
         'If you are using an official production build: the above error is most likely a bug! '
-        + ' Please report this under: https://github.com/usebruno/bruno/issues'
+        + ' Please report this under: https://github.com/theusmoreira/gruno/issues'
       );
     }
   });
@@ -535,7 +534,6 @@ app.on('ready', async () => {
   registerSnapshotIpc();
   registerWorkspaceIpc(mainWindow, workspaceWatcher);
   registerApiSpecIpc(mainWindow, apiSpecWatcher);
-  registerNotificationsIpc(mainWindow, collectionWatcher);
   registerFilesystemIpc(mainWindow);
   registerSystemMonitorIpc(mainWindow, systemMonitor);
   registerGitIpc(mainWindow, collectionWatcher);

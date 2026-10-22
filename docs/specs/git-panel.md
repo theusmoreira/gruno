@@ -137,7 +137,7 @@ Cada componente em sua pasta (`<Nome>/index.js` + `StyledWrapper.js`), cores via
 
 ```
 components/GitPanel/
-  index.js                 # barra lateral à direita, montada em pages/Bruno ao lado do AiChatSidebar
+  index.js                 # barra lateral à direita, montada na página principal ao lado do AiChatSidebar
   StyledWrapper.js
   GitChangesList/          # lista staged e unstaged, botões +/- por arquivo, "stage all" e "unstage all"
   GitCommitBox/            # textarea + botão Commit (desabilitado sem staged ou sem mensagem)
