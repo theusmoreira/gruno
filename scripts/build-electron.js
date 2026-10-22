@@ -1,7 +1,6 @@
 const os = require('os');
 const fs = require('fs-extra');
-const util = require('util');
-const spawn = util.promisify(require('child_process').spawn);
+const { spawn } = require('child_process');
 const path = require('path');
 
 async function deleteFileIfExists(filePath) {
@@ -18,18 +17,12 @@ async function deleteFileIfExists(filePath) {
   }
 }
 
-async function copyFolderIfExists(srcPath, destPath) {
-  try {
-    const exists = await fs.pathExists(srcPath);
-    if (exists) {
-      await fs.copy(srcPath, destPath);
-      console.log(`${srcPath} has been successfully copied.`);
-    } else {
-      console.log(`${srcPath} was not copied as it does not exist.`);
-    }
-  } catch (err) {
-    console.error(`Error while checking the existence of ${srcPath}: ${err}`);
+async function copyFolder(srcPath, destPath) {
+  if (!(await fs.pathExists(srcPath))) {
+    throw new Error(`${srcPath} does not exist. Run "npm run build:web" first.`);
   }
+  await fs.copy(srcPath, destPath);
+  console.log(`${srcPath} has been successfully copied.`);
 }
 
 async function removeSourceMapFiles(directory) {
@@ -48,8 +41,8 @@ async function removeSourceMapFiles(directory) {
 }
 
 async function execCommandWithOutput(command) {
-  return new Promise(async (resolve, reject) => {
-    const childProcess = await spawn(command, {
+  return new Promise((resolve, reject) => {
+    const childProcess = spawn(command, {
       stdio: 'inherit',
       shell: true
     });
@@ -66,7 +59,25 @@ async function execCommandWithOutput(command) {
   });
 }
 
+/*
+ * Usage: node scripts/build-electron.js [--dist=<mac|win|linux|deb|rpm|snap>] [electron-builder args...]
+ * --dist picks the packages/bruno-electron "dist:*" script (default: the current OS); every other
+ * argument is passed through to electron-builder, e.g. --x64 or --publish never.
+ */
+function parseArgs(argv) {
+  const distArg = argv.find((arg) => arg.startsWith('--dist='));
+  const builderArgs = argv.filter((arg) => arg !== distArg);
+  return { dist: distArg ? distArg.slice('--dist='.length) : null, builderArgs };
+}
+
+function defaultDistForPlatform() {
+  if (os.platform() === 'win32') return 'win';
+  if (os.platform() === 'darwin') return 'mac';
+  return 'linux';
+}
+
 async function main() {
+  const { dist, builderArgs } = parseArgs(process.argv.slice(2));
   try {
     // Remove out directory
     await deleteFileIfExists('packages/bruno-electron/out');
@@ -79,7 +90,7 @@ async function main() {
     console.log('The directory has been created successfully!');
 
     // Copy build
-    await copyFolderIfExists('packages/bruno-app/dist', 'packages/bruno-electron/web');
+    await copyFolder('packages/bruno-app/dist', 'packages/bruno-electron/web');
 
     // Update static paths
     const files = await fs.readdir('packages/bruno-electron/web');
@@ -113,19 +124,11 @@ async function main() {
     // Run npm dist command
     console.log('Building the Electron distribution');
 
-    // Determine the OS and set the appropriate argument
-    let osArg;
-    if (os.platform() === 'win32') {
-      osArg = 'win';
-    } else if (os.platform() === 'darwin') {
-      osArg = 'mac';
-    } else {
-      osArg = 'linux';
-    }
-
-    await execCommandWithOutput(`npm run dist:${osArg} --workspace=packages/bruno-electron`);
+    const extraArgs = builderArgs.length ? ` -- ${builderArgs.join(' ')}` : '';
+    await execCommandWithOutput(`npm run dist:${dist || defaultDistForPlatform()} --workspace=packages/bruno-electron${extraArgs}`);
   } catch (error) {
     console.error('An error occurred:', error);
+    process.exitCode = 1;
   }
 }
 
