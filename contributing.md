@@ -191,3 +191,19 @@ Please also follow our [coding standards](CODING_STANDARDS.md).
     - Example: feature/dark-mode
   - bugfix/[bug name]: This branch should contain only bug fixes for a specific bug
     - Example bugfix/bug-1
+
+### Releasing
+
+Releases are built by the `Release` workflow (`.github/workflows/release.yml`) when a version tag is pushed.
+
+1. Set the same version in `packages/bruno-electron/package.json` and `packages/bruno-app/package.json`, and merge it into `main`.
+2. Tag that commit and push the tag:
+
+   ```bash
+   git tag v2.0.1
+   git push origin v2.0.1
+   ```
+
+The workflow builds the macOS (`.dmg`, `.pkg`, `.zip` for Intel and Apple Silicon), Windows (`.exe`, x64) and Linux (`.AppImage` and `.deb`, x64) installers and publishes them as a GitHub Release. Tags with a hyphen, such as `v2.1.0-beta.1`, are published as pre-releases. To rebuild an existing tag, run the workflow manually from the Actions tab and enter the tag.
+
+macOS builds are unsigned. To sign and notarize them, add `CSC_NAME`, `APPLE_ID`, `APPLE_ID_PASSWORD` and `APPLE_TEAM_ID` to the packaging step, along with the certificate.

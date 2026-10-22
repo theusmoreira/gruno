@@ -1,0 +1,131 @@
+name: Release
+
+# Pushing a tag such as v2.0.1 builds the installers on macOS, Windows and Linux and publishes them
+# as a GitHub Release. The tag must match the version in packages/bruno-electron and packages/bruno-app.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to build and release (e.g. v2.0.1)'
+        required: true
+
+concurrency:
+  group: release-${{ github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
+
+jobs:
+  build:
+    name: Build (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            os: macos-latest
+            dist: mac
+            builder-args: --publish never
+          - name: Windows
+            os: windows-latest
+            dist: win
+            builder-args: --x64 --publish never
+          - name: Linux AppImage
+            os: ubuntu-22.04
+            dist: linux
+            builder-args: --x64 --publish never
+          - name: Linux deb
+            os: ubuntu-22.04
+            dist: deb
+            builder-args: --x64 --publish never
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      # The installer takes its version from bruno-electron and the interface shows bruno-app's.
+      - name: Check the tag matches the app version
+        shell: bash
+        run: |
+          for pkg in packages/bruno-electron packages/bruno-app; do
+            version="v$(node -p "require('./$pkg/package.json').version")"
+            if [ "$version" != "$RELEASE_TAG" ]; then
+              echo "::error::Tag $RELEASE_TAG does not match version $version in $pkg/package.json"
+              exit 1
+            fi
+          done
+
+      - name: Setup Node dependencies
+        uses: ./.github/actions/common/setup-node-deps
+
+      - name: Install native modules for every architecture
+        shell: bash
+        run: node scripts/platform-deps.js
+
+      - name: Build the interface
+        shell: bash
+        run: npm run build:web
+
+      - name: Package the app
+        shell: bash
+        env:
+          # No Apple Developer ID yet: build unsigned instead of picking up a random keychain identity.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: node scripts/build-electron.js --dist=${{ matrix.dist }} ${{ matrix.builder-args }}
+
+      - name: Collect installers
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          find packages/bruno-electron/out -maxdepth 1 -type f \
+            \( -name '*.dmg' -o -name '*.pkg' -o -name '*.zip' -o -name '*.exe' -o -name '*.AppImage' -o -name '*.deb' \) \
+            -exec cp {} release-assets/ \;
+          ls -la release-assets
+          if [ -z "$(ls -A release-assets)" ]; then
+            echo "::error::No installers were produced"
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.dist }}
+          path: release-assets/*
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          pattern: installers-*
+          merge-multiple: true
+
+      - name: Create or update the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          ls -la release-assets
+          if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" release-assets/* --clobber
+          else
+            prerelease=""
+            case "$RELEASE_TAG" in *-*) prerelease="--prerelease" ;; esac
+            gh release create "$RELEASE_TAG" release-assets/* \
+              --title "Gruno $RELEASE_TAG" \
+              --generate-notes \
+              --verify-tag \
+              $prerelease
+          fi
