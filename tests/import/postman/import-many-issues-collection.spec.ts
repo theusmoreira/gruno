@@ -61,7 +61,7 @@ test.describe('Import Postman Collection with many issues (URL too long warning)
 
       // URL should have title but NOT body (since it was too long)
       const openedUrl = await page.evaluate(() => (window as any).__capturedOpenUrl as string);
-      expect(openedUrl).toContain('https://github.com/usebruno/bruno/issues/new');
+      expect(openedUrl).toContain('https://github.com/theusmoreira/gruno/issues/new');
       expect(openedUrl).toContain('title=');
       expect(openedUrl).toContain('labels=bug');
       expect(openedUrl).not.toContain('Missing+or+invalid+request+method');
