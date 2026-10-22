@@ -43,6 +43,7 @@ import Preferences from 'components/Preferences';
 import EnvironmentSettings from 'components/Environments/EnvironmentSettings';
 import GlobalEnvironmentSettings from 'components/Environments/GlobalEnvironmentSettings';
 import OpenAPISyncTab from 'components/OpenAPISyncTab';
+import GitDiffTab from 'components/GitDiffTab';
 import OpenAPISpecTab from 'components/OpenAPISpecTab';
 import ApiSpecTab from 'components/ApiSpecTab';
 import MockServerDashboard from 'components/MockServer/MockServerDashboard';
@@ -582,6 +583,10 @@ const RequestTabPanel = () => {
 
   if (focusedTab.type === 'environment-settings') {
     return <EnvironmentSettings collection={collection} />;
+  }
+
+  if (focusedTab.type === 'git-diff') {
+    return <GitDiffTab collection={collection} gitDiff={focusedTab.gitDiff} />;
   }
 
   if (focusedTab.type === 'openapi-sync') {

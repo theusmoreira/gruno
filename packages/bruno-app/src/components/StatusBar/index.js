@@ -9,6 +9,7 @@ import Cookies from 'components/Cookies';
 import Notifications from 'components/Notifications';
 import Portal from 'components/Portal';
 import ThemeDropdown from './ThemeDropdown';
+import GitStatusButton from './GitStatusButton';
 import { openConsole } from 'providers/ReduxStore/slices/logs';
 import { addTab } from 'providers/ReduxStore/slices/tabs';
 import { useApp } from 'providers/App';
@@ -118,6 +119,8 @@ const StatusBar = () => {
 
         <div className="status-bar-section">
           <div className="flex items-center gap-3">
+            {activeTab?.collectionUid && <GitStatusButton collectionUid={activeTab.collectionUid} />}
+
             <button
               className="status-bar-button"
               data-trigger="search"

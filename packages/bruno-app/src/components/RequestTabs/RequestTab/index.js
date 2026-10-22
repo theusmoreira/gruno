@@ -211,7 +211,8 @@ const RequestTab = ({ tab, collection, tabIndex, collectionRequestTabs, folderUi
     'openapi-spec',
     'mock-server',
     'changelog',
-    'api-spec'
+    'api-spec',
+    'git-diff'
   ];
 
   const hasDraft = tab.type === 'collection-settings' && collection?.draft;
@@ -571,7 +572,7 @@ const RequestTab = ({ tab, collection, tabIndex, collectionRequestTabs, folderUi
           <SpecialTab handleCloseClick={null} type={tab.type} />
         ) : tab.type === 'workspaceEnvironments' ? (
           <SpecialTab handleCloseClick={null} type={tab.type} hasDraft={hasGlobalEnvironmentDraft} />
-        ) : tab.type === 'mock-server' ? (
+        ) : tab.type === 'mock-server' || tab.type === 'git-diff' ? (
           <SpecialTab handleCloseClick={handleCloseClick} handleDoubleClick={() => dispatch(makeTabPermanent({ uid: tab.uid }))} type={tab.type} tabName={tab.tabName} />
         ) : tab.type === 'api-spec' ? (
           <SpecialTab handleCloseClick={handleCloseApiSpec} handleDoubleClick={() => dispatch(makeTabPermanent({ uid: tab.uid }))} type={tab.type} tabName={apiSpecTabName} hasDraft={hasApiSpecDraft} />

@@ -538,7 +538,7 @@ app.on('ready', async () => {
   registerNotificationsIpc(mainWindow, collectionWatcher);
   registerFilesystemIpc(mainWindow);
   registerSystemMonitorIpc(mainWindow, systemMonitor);
-  registerGitIpc(mainWindow);
+  registerGitIpc(mainWindow, collectionWatcher);
   registerOpenAPISyncIpc(mainWindow);
   registerMockServerIpc(mainWindow);
   registerAiIpc(mainWindow);
@@ -627,6 +627,10 @@ app.on('browser-window-focus', () => {
   globalShortcut.register('Ctrl+=', () => {
     incrementZoomAndPersist(10);
   });
+
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('main:window-focused');
+  }
 });
 
 // Disable global shortcuts when not focused

@@ -38,7 +38,8 @@ const NON_REPLACEABLE_SINGLETON_TAB_TYPES = new Set([
 
 const IGNORED_TAB_TYPES = new Set([
   'v4-migration',
-  'changelog'
+  'changelog',
+  'git-diff'
 ]);
 
 export const WORKSPACE_TAB_UID_SUFFIX_BY_TYPE = {

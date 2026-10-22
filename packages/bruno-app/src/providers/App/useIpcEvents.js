@@ -3,8 +3,10 @@ import {
   updateCookies,
   updatePreferences,
   setGitVersion,
-  setIsOpeningCollection
+  setIsOpeningCollection,
+  updateGitOperationProgress
 } from 'providers/ReduxStore/slices/app';
+import { scheduleGitStatusRefresh, scheduleGitStatusRefreshForAll } from 'providers/ReduxStore/slices/git/actions';
 import {
   updateServerStatus,
   addRequestLogEntries,
@@ -111,6 +113,11 @@ const useIpcEvents = () => {
       }
       if (type === 'unlinkEnvironmentFile') {
         dispatch(collectionUnlinkEnvFileEvent(val));
+      }
+
+      const changedCollectionUid = val?.meta?.collectionUid;
+      if (changedCollectionUid) {
+        dispatch(scheduleGitStatusRefresh(changedCollectionUid));
       }
     };
 
@@ -382,6 +389,16 @@ const useIpcEvents = () => {
       dispatch(setGitVersion(val));
     });
 
+    const removeGitOperationProgressListener = ipcRenderer.on('main:update-git-operation-progress', (val) => {
+      dispatch(updateGitOperationProgress(val));
+    });
+
+    // Commits, pulls and branch switches made outside the app only touch .git, which the collection
+    // watcher ignores, so the Git status is re-read when the window regains focus.
+    const removeWindowFocusedListener = ipcRenderer.on('main:window-focused', () => {
+      dispatch(scheduleGitStatusRefreshForAll());
+    });
+
     // Mock server events
     const removeMockServerStatusListener = ipcRenderer.on('main:mock-server-status-changed', (val) => {
       dispatch(updateServerStatus(val));
@@ -464,6 +481,8 @@ const useIpcEvents = () => {
       removeRuntimeVariablesUpdateListener();
       removeSystemResourcesListener();
       gitVersionListener();
+      removeGitOperationProgressListener();
+      removeWindowFocusedListener();
       removeMockServerStatusListener();
       removeMockServerRequestLogListener();
       removeMockServerAddedListener();
