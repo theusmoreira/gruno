@@ -1,10 +1,19 @@
 name: Linux Tests
+
+# E2E coverage is tiered to keep pull requests fast:
+# - pull requests run the specs for the areas they change plus a smoke set (scripts/select-e2e-tests.js);
+# - the nightly schedule and manual runs run the whole suite in 4 shards;
+# - pushes to main run only unit and CLI tests, since the nightly run covers the merged code.
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '17 6 * * *' # 03:17 in Brasília
   push:
     branches: [main, 'release/v*']
+    paths-ignore: ['**/*.md', 'docs/**', 'assets/**']
   pull_request:
     branches: [main, 'release/v*']
+    paths-ignore: ['**/*.md', 'docs/**', 'assets/**']
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -13,6 +22,7 @@ concurrency:
 jobs:
   unit-test:
     name: Unit Tests (Linux)
+    if: github.event_name != 'schedule'
     timeout-minutes: 60
     runs-on: ubuntu-latest
     permissions:
@@ -28,6 +38,7 @@ jobs:
 
   cli-test:
     name: CLI Tests (Linux)
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     permissions:
       checks: write
@@ -55,6 +66,7 @@ jobs:
 
   cli-test-cache-modules:
     name: CLI Tests with experimental-cache-modules (Linux)
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     permissions:
       checks: write
@@ -82,15 +94,55 @@ jobs:
           comment_mode: always
           check_run: false
 
+  e2e-select:
+    name: Select E2E Tests
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      shards: ${{ steps.select.outputs.shards }}
+      specs: ${{ steps.select.outputs.specs }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Select specs
+        id: select
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$EVENT" = "schedule" ] && [ -z "$(git log --since='24 hours ago' --format=%H -1)" ]; then
+            echo "No commits in the last 24 hours, skipping the nightly run"
+            echo 'shards=[]' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$EVENT" = "pull_request" ]; then
+            selection=$(git diff --name-only "$BASE_SHA"...HEAD | node scripts/select-e2e-tests.js)
+          else
+            selection='{"mode":"full"}'
+          fi
+          echo "$selection"
+          if [ "$(echo "$selection" | jq -r .mode)" = "full" ]; then
+            echo 'shards=["1/4","2/4","3/4","4/4"]' >> "$GITHUB_OUTPUT"
+            echo 'specs=' >> "$GITHUB_OUTPUT"
+          else
+            echo 'shards=["1/1"]' >> "$GITHUB_OUTPUT"
+            echo "specs=$(echo "$selection" | jq -r '.specs | join(" ")')" >> "$GITHUB_OUTPUT"
+          fi
+
   e2e-test:
-    name: Playwright E2E Tests (Linux) ${{ matrix.shard }}/${{ matrix.shardTotal }}
-    timeout-minutes: 240
+    name: Playwright E2E Tests (Linux) ${{ matrix.shard }}
+    needs: [e2e-select]
+    if: needs.e2e-select.outputs.shards != '[]'
+    timeout-minutes: 120
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        shardTotal: [4]
-        shard: [1, 2, 3, 4]
+        shard: ${{ fromJSON(needs.e2e-select.outputs.shards) }}
     steps:
       - uses: actions/checkout@v6
 
@@ -117,19 +169,20 @@ jobs:
         uses: ./.github/actions/tests/run-e2e-tests
         with:
           os: ubuntu
-          shard: ${{ matrix.shard }}/${{ matrix.shardTotal }}
+          shard: ${{ matrix.shard }}
+          specs: ${{ needs.e2e-select.outputs.specs }}
 
       - name: Upload blob report
         uses: actions/upload-artifact@v6
         if: ${{ !cancelled() }}
         with:
-          name: blob-report-linux-${{ matrix.shard }}
+          name: blob-report-linux-${{ strategy.job-index }}
           path: blob-report/
           retention-days: 7
 
   e2e-test-report:
     name: Merge Playwright Reports (Linux)
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && needs.e2e-test.result != 'skipped' }}
     needs: [e2e-test]
     runs-on: ubuntu-latest
     steps:
@@ -159,6 +212,7 @@ jobs:
 
   ssl-test:
     name: SSL Tests (Linux)
+    if: github.event_name != 'schedule'
     timeout-minutes: 60
     runs-on: ubuntu-latest
     permissions:
@@ -194,6 +248,7 @@ jobs:
 
   oauth1-tests:
     name: OAuth 1.0 Auth Tests (Linux)
+    if: github.event_name != 'schedule'
     timeout-minutes: 60
     runs-on: ubuntu-latest
     permissions:
