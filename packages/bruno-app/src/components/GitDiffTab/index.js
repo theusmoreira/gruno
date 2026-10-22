@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import Button from 'ui/Button';
+import { openGitDiffTab } from 'providers/ReduxStore/slices/git/actions';
 import SegmentedControl from 'ui/SegmentedControl';
 import VisualDiffContent from 'components/Git/VisualDiffViewer/VisualDiffContent';
 import { formatIpcError } from 'utils/common/error';
@@ -31,8 +33,15 @@ const useGitFileDiff = (collectionPath, gitDiff, refreshKey) => {
   return result;
 };
 
+const OTHER_CHANGE_TYPE = { staged: 'unstaged', unstaged: 'staged' };
+
 const GitDiffTab = ({ collection, gitDiff }) => {
+  const dispatch = useDispatch();
   const refreshKey = useSelector((state) => state.git.byCollection[collection.uid]?.lastRefreshedAt);
+  const otherChangeType = OTHER_CHANGE_TYPE[gitDiff.changeType];
+  const hasOtherChanges = useSelector((state) =>
+    Boolean(state.git.byCollection[collection.uid]?.[otherChangeType]?.some((file) => file.path === gitDiff.path))
+  );
   const { loading, diff, error } = useGitFileDiff(collection.pathname, gitDiff, refreshKey);
   const [selectedView, setSelectedView] = useState(null);
 
@@ -51,7 +60,22 @@ const GitDiffTab = ({ collection, gitDiff }) => {
       return <div className="git-diff-notice">This diff is too large to display. Review it from the terminal.</div>;
     }
     if (!diff.patch) {
-      return <div className="git-diff-notice" data-testid="git-diff-empty">No {gitDiff.changeType} changes in this file.</div>;
+      return (
+        <div className="flex flex-col items-start gap-2" data-testid="git-diff-empty">
+          <div className="git-diff-notice">No {gitDiff.changeType} changes in this file.</div>
+          {hasOtherChanges && (
+            <Button
+              size="sm"
+              variant="outline"
+              color="secondary"
+              onClick={() => dispatch(openGitDiffTab(collection.uid, { path: gitDiff.path }, otherChangeType))}
+              data-testid="git-diff-open-other"
+            >
+              Show {otherChangeType} changes
+            </Button>
+          )}
+        </div>
+      );
     }
     if (view === 'visual') {
       if (!hasVisualChanges(diff.oldParsed, diff.newParsed)) {

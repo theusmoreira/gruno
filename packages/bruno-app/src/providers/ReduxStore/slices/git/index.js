@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const emptyCollectionGitState = () => ({
   isRepo: false,
+  hasRemote: false,
   branch: null,
   ahead: 0,
   behind: 0,

@@ -21,6 +21,7 @@ const collectionPath = collection.pathname;
 
 const repoStatus = (overrides = {}) => ({
   isRepo: true,
+  hasRemote: true,
   branch: 'main',
   ahead: 0,
   behind: 0,
@@ -110,6 +111,16 @@ describe('GitPanel', () => {
 
     expect(await screen.findByTestId('git-error')).toHaveTextContent('Authentication failed. Configure your Git credentials.');
     expect(screen.getByTestId('git-push-button')).toBeEnabled();
+  });
+
+  it('disables pull and push and explains why when there is no remote', async () => {
+    invoke.mockResolvedValue(repoStatus({ hasRemote: false, ahead: 2 }));
+    renderPanel();
+
+    expect(await screen.findByTestId('git-no-remote')).toBeInTheDocument();
+    expect(screen.getByTestId('git-pull-button')).toBeDisabled();
+    expect(screen.getByTestId('git-push-button')).toBeDisabled();
+    expect(screen.getByTestId('git-push-button')).toHaveTextContent(/^Push$/);
   });
 
   it('explains that Git is missing instead of calling it', async () => {

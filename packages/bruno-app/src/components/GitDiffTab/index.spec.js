@@ -9,6 +9,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { ThemeProvider } from 'styled-components';
 import light from 'themes/light/light';
 import gitReducer, { gitStatusReceived } from 'providers/ReduxStore/slices/git';
+import tabsReducer from 'providers/ReduxStore/slices/tabs';
 import GitDiffTab from './index';
 import { parsePatchLines } from './GitPatchView';
 
@@ -30,7 +31,7 @@ const patch = [
 ].join('\n');
 
 const renderTab = () => {
-  const store = configureStore({ reducer: { git: gitReducer } });
+  const store = configureStore({ reducer: { git: gitReducer, tabs: tabsReducer } });
   render(
     <Provider store={store}>
       <ThemeProvider theme={light}>
@@ -111,6 +112,26 @@ describe('GitDiffTab', () => {
 
     expect(await screen.findByTestId('git-patch-view')).toBeInTheDocument();
     expect(invoke).toHaveBeenCalledTimes(2);
+  });
+
+  it('offers the staged version once the file has been staged', async () => {
+    invoke.mockResolvedValue({ ...gitDiff, patch: '', isTooLarge: false, oldParsed: null, newParsed: null });
+    const store = renderTab();
+    act(() => {
+      store.dispatch(gitStatusReceived({
+        collectionUid: collection.uid,
+        status: { isRepo: true, staged: [{ path: gitDiff.path, fileIndex: 'M', working_dir: ' ' }] },
+        refreshedAt: 3
+      }));
+    });
+
+    fireEvent.click(await screen.findByTestId('git-diff-open-other'));
+
+    expect(store.getState().tabs.tabs[0]).toMatchObject({
+      type: 'git-diff',
+      tabName: 'get-user.bru (staged)',
+      gitDiff: { path: gitDiff.path, changeType: 'staged' }
+    });
   });
 
   it('shows the error when the diff cannot be read', async () => {

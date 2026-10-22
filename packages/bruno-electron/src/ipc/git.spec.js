@@ -145,8 +145,11 @@ describe('git panel handlers', () => {
       tooManyFiles: false
     });
 
+    getCollectionGitRepoUrl.mockResolvedValue('https://github.com/org/repo.git');
+
     expect(await getGitStatus(context, { collectionPath })).toEqual({
       isRepo: true,
+      hasRemote: true,
       branch: 'main',
       ahead: 2,
       behind: 1,
@@ -156,6 +159,15 @@ describe('git panel handlers', () => {
       tooManyFiles: false
     });
     expect(gitUtils.getChangedFilesInCollectionGit).toHaveBeenCalledWith(repoRoot, collectionPath);
+  });
+
+  it('reports a repository without an origin remote', async () => {
+    gitUtils.getCurrentGitBranch.mockResolvedValue('main');
+    gitUtils.getAheadBehindCount.mockResolvedValue({ ahead: 1, behind: 0 });
+    gitUtils.getChangedFilesInCollectionGit.mockResolvedValue({ staged: [], unstaged: [], conflicted: [], tooManyFiles: false });
+    getCollectionGitRepoUrl.mockRejectedValue(new Error('No remote'));
+
+    expect(await getGitStatus(context, { collectionPath })).toMatchObject({ isRepo: true, hasRemote: false });
   });
 
   it('does not initialise a repository inside an existing one', async () => {

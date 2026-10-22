@@ -123,14 +123,16 @@ const getGitStatus = async ({ collectionWatcher }, { collectionPath } = {}) => {
     return { isRepo: false };
   }
 
-  const [branch, aheadBehind, changes] = await Promise.all([
+  const [branch, aheadBehind, changes, remoteUrl] = await Promise.all([
     getCurrentGitBranch(gitRootPath),
     getAheadBehindCount(gitRootPath),
-    getChangedFilesInCollectionGit(gitRootPath, collectionPath)
+    getChangedFilesInCollectionGit(gitRootPath, collectionPath),
+    getCollectionGitRemoteUrl(gitRootPath)
   ]);
 
   return {
     isRepo: true,
+    hasRemote: Boolean(remoteUrl),
     branch: branch || null,
     ahead: aheadBehind.ahead,
     behind: aheadBehind.behind,
