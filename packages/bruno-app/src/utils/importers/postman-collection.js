@@ -16,7 +16,7 @@ const postmanToBruno = (collection, options = {}) => {
     window.ipcRenderer.invoke('renderer:convert-postman-to-bruno', collection, options)
       .then((result) => resolve(result))
       .catch((err) => {
-        console.error('Error converting Postman to Bruno via Electron:', err);
+        console.error('Error converting Postman to Gruno via Electron:', err);
         reject(new BrunoError('Conversion failed'));
       });
   });

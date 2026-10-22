@@ -1042,7 +1042,7 @@ const registerRendererEventHandlers = (mainWindow, watcher) => {
         info: {
           type: 'bruno-environment',
           exportedAt: new Date().toISOString(),
-          exportedUsing: `Bruno/v${appVersion}`
+          exportedUsing: `Gruno/v${appVersion}`
         }
       });
 
@@ -1073,7 +1073,7 @@ const registerRendererEventHandlers = (mainWindow, watcher) => {
           info: {
             type: 'bruno-environment',
             exportedAt: new Date().toISOString(),
-            exportedUsing: `Bruno/v${appVersion}`
+            exportedUsing: `Gruno/v${appVersion}`
           },
           environments
         };
@@ -2541,7 +2541,7 @@ const registerRendererEventHandlers = (mainWindow, watcher) => {
 
       return result;
     } catch (error) {
-      console.error('Error converting Postman to Bruno:', error);
+      console.error('Error converting Postman to Gruno:', error);
       return Promise.reject(error);
     }
   });
@@ -2812,8 +2812,7 @@ const registerMainEventHandlers = (mainWindow) => {
   ipcMain.on('menu:open-collection', triggerOpenCollection);
 
   ipcMain.on('main:open-docs', () => {
-    const docsURL = 'https://docs.usebruno.com';
-    shell.openExternal(docsURL);
+    shell.openExternal('https://github.com/theusmoreira/gruno#readme');
   });
 
   ipcMain.on('main:collection-opened', async (win, pathname, uid, brunoConfig) => {
@@ -2834,7 +2833,7 @@ const registerMainEventHandlers = (mainWindow) => {
               name: brunoConfig.name
             };
           } catch (error) {
-            console.warn(`Skipping invalid Bruno collection at ${pathname}: ${error.message}`);
+            console.warn(`Skipping invalid Gruno collection at ${pathname}: ${error.message}`);
             return { pathname, skipped: true };
           }
         })

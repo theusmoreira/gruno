@@ -27,7 +27,7 @@ const API_BLOCKS_BY_SCRIPT_TYPE = {
 
 const buildApiSummary = (scriptType) => {
   const blocks = API_BLOCKS_BY_SCRIPT_TYPE[scriptType] || Object.keys(API_BLOCKS);
-  return `## Bruno runtime APIs (available inside scripts)
+  return `## Gruno runtime APIs (available inside scripts)
 
 ${blocks.map((block) => API_BLOCKS[block]).join('\n\n')}`;
 };
@@ -39,13 +39,13 @@ const SCRIPT_CONTEXTS = {
 };
 
 const SCRIPT_TYPE_LABELS = {
-  'tests': 'a Bruno tests script',
-  'pre-request': 'a Bruno pre-request script',
-  'post-response': 'a Bruno post-response script'
+  'tests': 'a Gruno tests script',
+  'pre-request': 'a Gruno pre-request script',
+  'post-response': 'a Gruno post-response script'
 };
 
 const buildSystemPrompt = (scriptType) => {
-  const label = SCRIPT_TYPE_LABELS[scriptType] || 'a Bruno script';
+  const label = SCRIPT_TYPE_LABELS[scriptType] || 'a Gruno script';
   const context = SCRIPT_CONTEXTS[scriptType] || '';
   return `You are an inline code-completion engine for ${label}.
 
@@ -62,7 +62,7 @@ ${context}
 - If the cursor is at the end of a \`//\` comment line and you are generating CODE (not finishing the comment's text), begin your output with a newline — anything emitted on the comment line itself would be commented out. A comment like \`// test that status is 200\` is an instruction: put the implementing code on the following line(s).
 - Stop at a natural break (end of statement, end of block) — do not rewrite code that already exists after the cursor.
 - Prefer real variable names from the provided lists over placeholders.
-- This is Bruno, not Postman. Never emit \`pm.*\` calls such as \`pm.environment.get\`, \`pm.variables.get\`, \`pm.response.json\`, \`pm.test\`, or \`pm.sendRequest\` — \`pm\` is not a global in Bruno. Use only the Bruno globals listed above.
+- This is Gruno, not Postman. Never emit \`pm.*\` calls such as \`pm.environment.get\`, \`pm.variables.get\`, \`pm.response.json\`, \`pm.test\`, or \`pm.sendRequest\` — \`pm\` is not a global in Gruno. Use only the Gruno globals listed above.
 - Return an empty string if you have nothing useful to add.`;
 };
 

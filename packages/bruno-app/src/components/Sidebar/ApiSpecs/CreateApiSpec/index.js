@@ -32,7 +32,7 @@ import {
 const CreateApiSpec = ({ onClose }) => {
   const sourceRadios = [
     { id: 'api-spec-source-blank', value: API_SPEC_SOURCE.BLANK, label: 'Blank Spec' },
-    { id: 'api-spec-source-collection', value: API_SPEC_SOURCE.COLLECTION, label: 'Bruno Collection' },
+    { id: 'api-spec-source-collection', value: API_SPEC_SOURCE.COLLECTION, label: 'Gruno Collection' },
     { id: 'api-spec-source-url', value: API_SPEC_SOURCE.URL, label: 'Spec URL' }
   ];
 

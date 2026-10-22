@@ -195,7 +195,7 @@ const ExportToPostman = ({ onClose, onExported, collection }) => {
                 <div>
                   <span className="preserve-scripts-label">Preserve scripts</span>
                   <p className="preserve-scripts-description">
-                    Export Bruno scripts without translating them.
+                    Export Gruno scripts without translating them.
                   </p>
                 </div>
               </label>

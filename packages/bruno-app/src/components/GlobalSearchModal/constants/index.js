@@ -24,9 +24,9 @@ export const SEARCH_CONFIG = {
 
 export const DOCUMENTATION_RESULT = {
   type: SEARCH_TYPES.DOCUMENTATION,
-  item: { id: 'docs', name: 'Bruno Documentation' },
-  name: 'Bruno Documentation',
+  item: { id: 'docs', name: 'Gruno Documentation' },
+  name: 'Gruno Documentation',
   path: '/',
-  description: 'Browse the official Bruno documentation',
+  description: 'Open the Gruno README on GitHub',
   matchType: MATCH_TYPES.DOCUMENTATION
 };

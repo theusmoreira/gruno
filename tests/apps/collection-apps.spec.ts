@@ -123,7 +123,6 @@ test.describe('Collection apps', () => {
       await expect(appEmptyState(page)).toBeVisible();
       await expect(activeAppPreviewSlot(page).getByTestId('collection-app-preview').locator('webview')).toHaveCount(0);
       await expect(appEmptyState(page).getByTestId('empty-app-add-code')).toBeVisible();
-      await expect(appEmptyState(page).getByTestId('empty-app-learn-more')).toBeVisible();
     });
   });
 

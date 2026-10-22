@@ -210,7 +210,6 @@ const RequestTab = ({ tab, collection, tabIndex, collectionRequestTabs, folderUi
     'openapi-sync',
     'openapi-spec',
     'mock-server',
-    'changelog',
     'api-spec',
     'git-diff'
   ];

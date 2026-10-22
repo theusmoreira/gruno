@@ -272,7 +272,7 @@ test.describe('Open Collection - selection flow', () => {
     await openViaSidebar(page);
 
     await expect(
-      page.getByText('No Bruno collections found. Couldn\'t find a bruno.json or opencollection.yml')
+      page.getByText('No Gruno collections found. Couldn\'t find a bruno.json or opencollection.yml')
     ).toBeVisible();
     await expect(openCollectionModal(page)).toHaveCount(0);
   });

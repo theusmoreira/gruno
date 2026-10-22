@@ -1,15 +1,8 @@
 import React from 'react';
-import {
-  IconSpeakerphone,
-  IconBrandTwitter,
-  IconBrandGithub,
-  IconBrandDiscord,
-  IconBrandLinkedin,
-  IconBook,
-  IconExternalLink
-} from '@tabler/icons';
+import { IconSpeakerphone, IconBrandGithub, IconExternalLink } from '@tabler/icons';
 import StyledWrapper from './StyledWrapper';
 import { useTranslation } from 'react-i18next';
+import { GRUNO_ISSUES_URL, GRUNO_REPOSITORY_URL } from 'utils/common/links';
 
 const SUPPORT_GROUPS = [
   {
@@ -17,16 +10,9 @@ const SUPPORT_GROUPS = [
     label: 'SUPPORT.HELP',
     links: [
       {
-        key: 'documentation',
-        icon: IconBook,
-        url: 'https://docs.usebruno.com',
-        label: 'COMMON.DOCUMENTATION',
-        description: 'SUPPORT.DOCUMENTATION_DESCRIPTION'
-      },
-      {
         key: 'report-issues',
         icon: IconSpeakerphone,
-        url: 'https://github.com/usebruno/bruno/issues',
+        url: GRUNO_ISSUES_URL,
         label: 'COMMON.REPORT_ISSUES',
         description: 'SUPPORT.REPORT_ISSUES_DESCRIPTION'
       }
@@ -39,30 +25,9 @@ const SUPPORT_GROUPS = [
       {
         key: 'github',
         icon: IconBrandGithub,
-        url: 'https://github.com/usebruno/bruno',
+        url: GRUNO_REPOSITORY_URL,
         label: 'COMMON.GITHUB',
         description: 'SUPPORT.GITHUB_DESCRIPTION'
-      },
-      {
-        key: 'discord',
-        icon: IconBrandDiscord,
-        url: 'https://discord.com/invite/KgcZUncpjq',
-        label: 'COMMON.DISCORD',
-        description: 'SUPPORT.DISCORD_DESCRIPTION'
-      },
-      {
-        key: 'twitter',
-        icon: IconBrandTwitter,
-        url: 'https://twitter.com/use_bruno',
-        label: 'COMMON.TWITTER',
-        description: 'SUPPORT.TWITTER_DESCRIPTION'
-      },
-      {
-        key: 'linkedin',
-        icon: IconBrandLinkedin,
-        url: 'https://in.linkedin.com/company/usebruno',
-        label: 'COMMON.LINKEDIN',
-        description: 'SUPPORT.LINKEDIN_DESCRIPTION'
       }
     ]
   }

@@ -103,7 +103,6 @@ export const tabsSlice = createSlice({
         'workspaceEnvironments',
         'openapi-sync',
         'openapi-spec',
-        'changelog',
         'mock-server',
         API_SPEC_TAB_TYPE
       ];

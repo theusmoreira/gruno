@@ -3,7 +3,8 @@ import toast from 'react-hot-toast';
 import { IconAlertCircle, IconBrandGithub, IconCopy, IconX } from '@tabler/icons';
 import StyledWrapper from './StyledWrapper';
 
-const GITHUB_ISSUES_URL = 'https://github.com/usebruno/bruno/issues/new';
+import { GRUNO_NEW_ISSUE_URL as GITHUB_ISSUES_URL } from 'utils/common/links';
+
 const MAX_URL_LENGTH = 8000;
 
 const ImportIssuesToastContent = ({ t, issues, summary }) => {

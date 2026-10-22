@@ -18,7 +18,7 @@ export const processBrunoCollection = async (jsonData) => {
     await validateSchema(collection);
     return collection;
   } catch (err) {
-    console.error('Error processing Bruno collection:', err);
+    console.error('Error processing Gruno collection:', err);
     throw new BrunoError('Import collection failed');
   }
 };

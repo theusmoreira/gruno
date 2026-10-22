@@ -9,11 +9,10 @@ import toast from 'react-hot-toast';
 import get from 'lodash/get';
 // Commented out while there are no active beta features. Re-enable this import when
 // adding a beta feature its keys are then referenced as BETA_FEATURE_IDS.MY_FEATURE in the BETA_FEATURES array.
-import { IconArrowRight, IconExternalLink } from '@tabler/icons';
+import { IconArrowRight } from '@tabler/icons';
 import ToggleSwitch from 'components/ToggleSwitch';
 
 import { BETA_FEATURES as BETA_FEATURE_IDS } from 'utils/beta-features';
-import { getDocsUrlWithVersion } from 'utils/url';
 
 /**
  * UI metadata for the Beta Features section in Preferences — one entry per toggle.
@@ -27,7 +26,6 @@ import { getDocsUrlWithVersion } from 'utils/url';
  *                 name and the checkbox id, so it must be stable and unique.
  *   - label       (required) short name shown next to the checkbox.
  *   - description (required) one-line explanation shown under the label.
- *   - docsUrl     (optional) URL to the documentation for the feature.
  *   - defaultEnabled (optional) value used when the preference has never been saved. Must match the
  *                 default in the electron preferences store, otherwise the toggle lies about the state.
  *   - action      (optional) object with { label, tab } to render a button that navigates to a specific preferences tab. The label is the button text, and the tab is the tab key (e.g. 'ai', 'cache').
@@ -46,8 +44,7 @@ const BETA_FEATURES = [
     label: 'AI Assistant',
     description:
       'Generate scripts, tests, and documentation directly from the request tab. Includes contextual chat, scripting autocomplete, and support for OpenAI, Anthropic, and OpenAI-compatible providers using your own API key.',
-    action: { label: 'Go to AI settings', tab: 'ai' },
-    docsUrl: 'https://link.usebruno.com/docs/ai'
+    action: { label: 'Go to AI settings', tab: 'ai' }
   },
   {
     id: BETA_FEATURE_IDS.FILE_CACHE,
@@ -60,22 +57,19 @@ const BETA_FEATURES = [
     id: BETA_FEATURE_IDS.AKAMAI_EDGEGRID,
     label: 'Akamai EdgeGrid',
     description:
-      'Sign requests with the Akamai EdgeGrid authentication scheme. Select it from the Auth type dropdown on any request, folder, or collection.',
-    docsUrl: 'https://link.usebruno.com/docs/auth'
+      'Sign requests with the Akamai EdgeGrid authentication scheme. Select it from the Auth type dropdown on any request, folder, or collection.'
   },
   {
     id: BETA_FEATURE_IDS.MOCK_SERVER,
     label: 'Mock Server',
     description: 'Run a local mock server using response examples defined in your collection. Serve mock API responses for frontend development without a real backend.',
     toggle: true,
-    defaultEnabled: true,
-    docsUrl: 'https://link.usebruno.com/docs/mock-server'
+    defaultEnabled: true
   },
   {
     id: BETA_FEATURE_IDS.GRPC_SCRIPTING,
     label: 'gRPC Scripting',
-    description: 'Write scripts for gRPC requests. Inspect messages, metadata, and status across the call lifecycle.',
-    docsUrl: 'https://link.usebruno.com/docs/grpc-scripting'
+    description: 'Write scripts for gRPC requests. Inspect messages, metadata, and status across the call lifecycle.'
   }
 ];
 
@@ -193,7 +187,7 @@ const Beta = ({ close }) => {
                   </div>
                 )}
               </div>
-              {(feature.action || feature.docsUrl) && (
+              {feature.action && (
                 <div className="beta-feature-links">
                   {feature.action && (
                     <button
@@ -204,17 +198,6 @@ const Beta = ({ close }) => {
                       <span>{feature.action.label}</span>
                       <IconArrowRight size={14} strokeWidth={1.5} />
                     </button>
-                  )}
-                  {feature.docsUrl && (
-                    <a
-                      className="beta-feature-link"
-                      href={getDocsUrlWithVersion(feature.docsUrl)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <span>View docs</span>
-                      <IconExternalLink size={14} strokeWidth={1.5} />
-                    </a>
                   )}
                 </div>
               )}

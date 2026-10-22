@@ -2,10 +2,10 @@ import { rgba, lighten } from 'polished';
 
 export const palette = {
   primary: {
-    SOLID: 'hsl(39, 74%, 59%)',
-    TEXT: 'hsl(39, 74%, 64%)',
-    STRONG: 'hsl(39, 74%, 64%)',
-    SUBTLE: 'hsl(39, 74%, 54%)'
+    SOLID: 'hsl(246, 80%, 70%)',
+    TEXT: 'hsl(246, 85%, 76%)',
+    STRONG: 'hsl(246, 85%, 76%)',
+    SUBTLE: 'hsl(246, 70%, 64%)'
   },
   hues: {
     RED: 'hsl(8, 70%, 52%)',
@@ -24,7 +24,7 @@ export const palette = {
     PINK: 'hsl(305, 59%, 74%)'
   },
   system: {
-    CONTROL_ACCENT: '#D9A342'
+    CONTROL_ACCENT: '#8B80F0'
   },
   background: {
     BASE: 'hsl(0deg 0% 10%)',
@@ -259,7 +259,7 @@ const darkTheme = {
   },
 
   workspace: {
-    accent: '#D9A342',
+    accent: '#8B80F0',
     border: '#444',
     button: {
       bg: colors.GRAY_2

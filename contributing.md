@@ -1,31 +1,10 @@
-**English**
-| [Українська](docs/contributing/contributing_ua.md)
-| [Русский](docs/contributing/contributing_ru.md)
-| [Türkçe](docs/contributing/contributing_tr.md)
-| [Deutsch](docs/contributing/contributing_de.md)
-| [Français](docs/contributing/contributing_fr.md)
-| [Português (BR)](docs/contributing/contributing_pt_br.md)
-| [한국어](docs/contributing/contributing_kr.md)
-| [বাংলা](docs/contributing/contributing_bn.md)
-| [Español](docs/contributing/contributing_es.md)
-| [Italiano](docs/contributing/contributing_it.md)
-| [Română](docs/contributing/contributing_ro.md)
-| [Polski](docs/contributing/contributing_pl.md)
-| [简体中文](docs/contributing/contributing_cn.md)
-| [正體中文](docs/contributing/contributing_zhtw.md)
-| [日本語](docs/contributing/contributing_ja.md)
-| [हिंदी](docs/contributing/contributing_hi.md)
-| [Nederlands](docs/contributing/contributing_nl.md)
-| [Slovenčina](docs/contributing/contributing_sk.md)
-| [فارسی](docs/contributing/contributing_fa.md)
+# Contributing to Gruno
 
-## Let's make Bruno better, together!!
-
-We are happy that you are looking to improve Bruno. Below are the guidelines to run Bruno on your computer.
+Thanks for helping improve Gruno. This guide explains how to run it on your computer.
 
 ### Technology Stack
 
-Bruno is built using React and Electron.
+Gruno is built using React and Electron.
 
 Libraries we use
 
@@ -68,7 +47,7 @@ End-to-end (Playwright) tests live in the top-level `tests/` directory.
 
 ## Development
 
-Bruno is a desktop app. Below are the instructions to run Bruno.
+Gruno is a desktop app. Below are the instructions to run Gruno.
 
 > Note: We use React for the frontend and rsbuild for build and dev server.
 
@@ -134,7 +113,7 @@ If `ELECTRON_USER_DATA_PATH` env-variable is present and its development mode, t
 e.g.
 
 ```sh
-ELECTRON_USER_DATA_PATH=$(realpath ~/Desktop/bruno-test) npm run dev:electron
+ELECTRON_USER_DATA_PATH=$(realpath ~/Desktop/gruno-test) npm run dev:electron
 ```
 
 This will create a `bruno-test` folder on your Desktop and use it as the `userData` path.

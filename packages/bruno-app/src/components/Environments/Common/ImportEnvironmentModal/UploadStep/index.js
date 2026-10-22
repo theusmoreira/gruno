@@ -70,7 +70,7 @@ const UploadStep = ({ modalTitle, modalTestId, importTestId, onClose, handleImpo
                 {isDragOver ? 'Drop your environment files here' : 'Import your environments'}
               </span>
               <span className="upload-dropzone-subtitle">
-                Drag & drop JSON files or click to browse. Supports both Bruno and Postman formats.
+                Drag & drop JSON files or click to browse. Supports both Gruno and Postman formats.
               </span>
             </div>
           </div>
