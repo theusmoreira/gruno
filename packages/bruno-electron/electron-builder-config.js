@@ -59,6 +59,8 @@ const config = {
     ]
   },
   linux: {
+    // Required by .deb packages; the package.json author has no email.
+    maintainer: 'Gruno <theusmoreira@users.noreply.github.com>',
     artifactName: '${name}_${version}_${arch}_${os}.${ext}',
     icon: 'resources/icons/png',
     target: [

@@ -204,6 +204,6 @@ Releases are built by the `Release` workflow (`.github/workflows/release.yml`) w
    git push origin v2.0.1
    ```
 
-The workflow builds the macOS (`.dmg`, `.pkg`, `.zip` for Intel and Apple Silicon), Windows (`.exe`, x64) and Linux (`.AppImage` and `.deb`, x64) installers and publishes them as a GitHub Release. Tags with a hyphen, such as `v2.1.0-beta.1`, are published as pre-releases. To rebuild an existing tag, run the workflow manually from the Actions tab and enter the tag.
+The workflow builds the Windows (`.exe`, x64) and Linux (`.AppImage` and `.deb`, x64) installers and publishes them as a GitHub Release. macOS is not built in CI yet: it needs an Apple Developer ID to sign and notarize the app. Build it locally with `npm run build:electron:mac`. Tags with a hyphen, such as `v2.1.0-beta.1`, are published as pre-releases. To rebuild an existing tag, run the workflow manually from the Actions tab and enter the tag.
 
-macOS builds are unsigned. To sign and notarize them, add `CSC_NAME`, `APPLE_ID`, `APPLE_ID_PASSWORD` and `APPLE_TEAM_ID` to the packaging step, along with the certificate.
+To add macOS later, put a `macos-latest` entry with `dist: mac` back in the build matrix and provide `CSC_NAME`, `APPLE_ID`, `APPLE_ID_PASSWORD` and `APPLE_TEAM_ID` with the signing certificate.
