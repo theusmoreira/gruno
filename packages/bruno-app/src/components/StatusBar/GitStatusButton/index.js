@@ -22,8 +22,8 @@ const GitStatusButton = ({ collectionUid }) => {
       >
         <IconGitBranch size={16} strokeWidth={1.5} aria-hidden="true" />
         <span className="git-status-label">{branch || 'Git'}</span>
-        {gitState?.ahead > 0 && <span data-testid="git-status-ahead">↑{gitState.ahead}</span>}
-        {gitState?.behind > 0 && <span data-testid="git-status-behind">↓{gitState.behind}</span>}
+        {gitState?.hasRemote && gitState.ahead > 0 && <span data-testid="git-status-ahead">↑{gitState.ahead}</span>}
+        {gitState?.hasRemote && gitState.behind > 0 && <span data-testid="git-status-behind">↓{gitState.behind}</span>}
       </StyledWrapper>
     </ToolHint>
   );
