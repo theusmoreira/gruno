@@ -1,7 +1,8 @@
 name: Release
 
 # Pushing a tag such as v2.0.1 builds the Windows and Linux installers and publishes them
-# as a GitHub Release. The tag must match the version in packages/bruno-electron and packages/bruno-app.
+# as a GitHub Release. The tag is the source of truth: its version is written into packages/bruno-electron
+# and packages/bruno-app at build time, so no version-bump commit is needed before tagging.
 on:
   push:
     tags: ['v*']
@@ -47,16 +48,18 @@ jobs:
         with:
           ref: ${{ env.RELEASE_TAG }}
 
+      # The tag is the source of truth: stamp its version into the packages before building.
       # The installer takes its version from bruno-electron and the interface shows bruno-app's.
-      - name: Check the tag matches the app version
+      - name: Set the app version from the tag
         shell: bash
         run: |
+          version="${RELEASE_TAG#v}"
+          if ! echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
+            echo "::error::Tag $RELEASE_TAG is not a valid version (expected vMAJOR.MINOR.PATCH, optionally with a -prerelease suffix)"
+            exit 1
+          fi
           for pkg in packages/bruno-electron packages/bruno-app; do
-            version="v$(node -p "require('./$pkg/package.json').version")"
-            if [ "$version" != "$RELEASE_TAG" ]; then
-              echo "::error::Tag $RELEASE_TAG does not match version $version in $pkg/package.json"
-              exit 1
-            fi
+            (cd "$pkg" && npm version "$version" --no-git-tag-version --allow-same-version)
           done
 
       - name: Setup Node dependencies
