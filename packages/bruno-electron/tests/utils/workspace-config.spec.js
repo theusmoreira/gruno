@@ -6,7 +6,8 @@ const {
   reorderWorkspaceCollections,
   setCollectionGitRemote,
   clearCollectionGitRemote,
-  getWorkspaceCollections
+  getWorkspaceCollections,
+  addCollectionsToWorkspace
 } = require('../../src/utils/workspace-config');
 
 const collection = (name, pathSegment, extra = {}) => ({ name, path: pathSegment, ...extra });
@@ -453,5 +454,114 @@ describe('workspace specs normalization', () => {
       // Round-trip through readWorkspaceConfig (which coerces) must yield a safe array.
       expect(Array.isArray(readWorkspaceConfig(workspacePath).specs)).toBe(true);
     });
+  });
+});
+
+describe('addCollectionsToWorkspace', () => {
+  let workspacePath;
+  const ymlPath = () => path.join(workspacePath, 'workspace.yml');
+  const readCollections = () => yaml.load(fs.readFileSync(ymlPath(), 'utf8')).collections || [];
+
+  const writeWorkspaceYml = (lines = []) => {
+    const content = [
+      'opencollection: 1.0.0',
+      'info:',
+      '  name: Test',
+      '  type: workspace',
+      lines.length ? 'collections:' : 'collections: []',
+      ...lines,
+      'specs: []',
+      'docs: \'\''
+    ].join('\n');
+    fs.writeFileSync(ymlPath(), content);
+  };
+
+  beforeEach(() => {
+    workspacePath = fs.mkdtempSync(path.join(os.tmpdir(), 'bruno-ws-batch-'));
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    fs.rmSync(workspacePath, { recursive: true, force: true });
+  });
+
+  test('adds seven collections in one call, preserving input order', async () => {
+    writeWorkspaceYml();
+    const input = Array.from({ length: 7 }, (_, i) => collection(`C${i}`, path.join(workspacePath, '..', `repo${i}`, 'bruno')));
+
+    const result = await addCollectionsToWorkspace(workspacePath, input);
+
+    expect(result).toHaveLength(7);
+    expect(readCollections().map((c) => c.name)).toEqual(['C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6']);
+    expect(readCollections()[0].path).toBe(`../repo0/bruno`);
+  });
+
+  test('does not overwrite an existing entry', async () => {
+    writeWorkspaceYml(['  - name: Original', '    path: collections/a']);
+
+    await addCollectionsToWorkspace(workspacePath, [
+      collection('Renamed', 'collections/a', { remote: 'git@example.com:x.git' }),
+      collection('B', 'collections/b')
+    ]);
+
+    expect(readCollections()).toEqual([
+      { name: 'Original', path: 'collections/a' },
+      { name: 'B', path: 'collections/b' }
+    ]);
+  });
+
+  test('adds a duplicate inside the input list only once', async () => {
+    writeWorkspaceYml();
+
+    await addCollectionsToWorkspace(workspacePath, [collection('A', 'collections/a'), collection('A2', 'collections/a')]);
+
+    expect(readCollections()).toEqual([{ name: 'A', path: 'collections/a' }]);
+  });
+
+  test('dedupes absolute and relative forms of the same path', async () => {
+    writeWorkspaceYml(['  - name: A', '    path: collections/a']);
+
+    await addCollectionsToWorkspace(workspacePath, [
+      collection('A abs', path.join(workspacePath, 'collections', 'a')),
+      collection('B', path.join(workspacePath, 'collections', 'b')),
+      collection('B rel', 'collections/b')
+    ]);
+
+    expect(readCollections()).toEqual([
+      { name: 'A', path: 'collections/a' },
+      { name: 'B', path: 'collections/b' }
+    ]);
+  });
+
+  test('leaves the file byte-for-byte unchanged when nothing is new', async () => {
+    writeWorkspaceYml(['  - name: A', '    path: collections/a']);
+    const before = fs.readFileSync(ymlPath());
+
+    const result = await addCollectionsToWorkspace(workspacePath, [collection('A', 'collections/a')]);
+
+    expect(result).toHaveLength(1);
+    expect(fs.readFileSync(ymlPath()).equals(before)).toBe(true);
+  });
+
+  test('throws on an invalid entry and writes nothing', async () => {
+    writeWorkspaceYml(['  - name: A', '    path: collections/a']);
+    const before = fs.readFileSync(ymlPath());
+
+    await expect(
+      addCollectionsToWorkspace(workspacePath, [collection('B', 'collections/b'), { name: '', path: 'collections/c' }])
+    ).rejects.toThrow('Invalid collection');
+
+    expect(fs.readFileSync(ymlPath()).equals(before)).toBe(true);
+  });
+
+  test('concurrent calls with different collections both land in the file', async () => {
+    writeWorkspaceYml();
+
+    await Promise.all([
+      addCollectionsToWorkspace(workspacePath, [collection('A', 'collections/a'), collection('B', 'collections/b')]),
+      addCollectionsToWorkspace(workspacePath, [collection('C', 'collections/c'), collection('D', 'collections/d')])
+    ]);
+
+    expect(readCollections().map((c) => c.name).sort()).toEqual(['A', 'B', 'C', 'D']);
   });
 });

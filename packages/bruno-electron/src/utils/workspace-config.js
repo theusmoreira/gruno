@@ -377,6 +377,46 @@ const addCollectionToWorkspace = async (workspacePath, collection) => {
   });
 };
 
+const addCollectionsToWorkspace = async (workspacePath, collections) => {
+  if (!Array.isArray(collections) || !collections.every((c) => isValidCollectionEntry(c))) {
+    throw new Error('Invalid collection: name and path are required');
+  }
+
+  return withLock(getWorkspaceLockKey(workspacePath), async () => {
+    const config = readWorkspaceConfig(workspacePath);
+
+    if (!config.collections) {
+      config.collections = [];
+    }
+
+    const knownPaths = new Set();
+    config.collections.forEach((c) => {
+      const absolutePath = getNormalizedAbsoluteCollectionPath(workspacePath, c);
+      if (absolutePath) knownPaths.add(absolutePath);
+    });
+
+    let changed = false;
+    for (const collection of collections) {
+      const trimmed = { ...collection, name: collection.name.trim(), path: collection.path.trim() };
+      const absolutePath = getNormalizedAbsoluteCollectionPath(workspacePath, trimmed);
+      if (knownPaths.has(absolutePath)) continue;
+
+      const entry = normalizeCollectionEntry(workspacePath, trimmed);
+      if (entry.remote && typeof entry.remote === 'string') {
+        entry.remote = entry.remote.trim();
+      }
+      knownPaths.add(absolutePath);
+      config.collections.push(entry);
+      changed = true;
+    }
+
+    if (changed) {
+      await writeWorkspaceFileAtomic(workspacePath, generateYamlContent(config));
+    }
+    return config.collections;
+  });
+};
+
 const getCollectionGitignoreEntry = (workspacePath, collectionPath) => {
   const absolute = path.isAbsolute(collectionPath)
     ? collectionPath
@@ -723,6 +763,7 @@ module.exports = {
   updateWorkspaceName,
   updateWorkspaceDocs,
   addCollectionToWorkspace,
+  addCollectionsToWorkspace,
   removeCollectionFromWorkspace,
   setCollectionGitRemote,
   clearCollectionGitRemote,
