@@ -6,7 +6,9 @@ import {
   updateWorkspace,
   removeCollectionFromWorkspace,
   updateWorkspaceLoadingState,
-  setWorkspaceScratchCollection
+  setWorkspaceScratchCollection,
+  setWorkspaceScanning,
+  setWorkspaceScanSummary
 } from '../workspaces';
 import { createCollection, openMultipleCollections, openScratchCollectionEvent, mountCollection, hydrateCollectionWithUiStateSnapshot } from '../collections/actions';
 import { removeCollection, addTransientDirectory, updateCollectionMountStatus, expandCollection, sortCollections } from '../collections';
@@ -194,7 +196,42 @@ export const cancelWorkspaceCreation = (tempWorkspaceUid) => {
   };
 };
 
-export const createWorkspaceAction = (workspaceName, workspaceFolderName, workspaceLocation) => {
+export const setWorkspaceScanRootAction = (workspacePath, scanRoot) => {
+  return async () => {
+    return ipcRenderer.invoke('renderer:set-workspace-scan-root', workspacePath, scanRoot);
+  };
+};
+
+export const getWorkspaceScanRootAction = (workspacePath) => {
+  return async () => {
+    return ipcRenderer.invoke('renderer:get-workspace-scan-root', workspacePath);
+  };
+};
+
+// The summary reaches the store through workspaceScanCompletedEvent; the return value is for callers that need it right away.
+export const scanWorkspaceCollectionsAction = (workspaceUid) => {
+  return async (dispatch, getState) => {
+    const workspace = getState().workspaces.workspaces.find((w) => w.uid === workspaceUid);
+    if (!workspace?.pathname || workspace.scan?.scanning) {
+      return null;
+    }
+
+    dispatch(setWorkspaceScanning({ workspaceUid, scanning: true }));
+    try {
+      return await ipcRenderer.invoke('renderer:scan-workspace-collections', workspace.pathname);
+    } finally {
+      dispatch(setWorkspaceScanning({ workspaceUid, scanning: false }));
+    }
+  };
+};
+
+export const workspaceScanCompletedEvent = (workspacePath, workspaceUid, summary) => {
+  return (dispatch) => {
+    dispatch(setWorkspaceScanSummary({ workspaceUid, summary }));
+  };
+};
+
+export const createWorkspaceAction = (workspaceName, workspaceFolderName, workspaceLocation, scanRoot) => {
   return async (dispatch) => {
     try {
       const result = await ipcRenderer.invoke('renderer:create-workspace',
@@ -212,6 +249,15 @@ export const createWorkspaceAction = (workspaceName, workspaceFolderName, worksp
       }));
 
       await dispatch(switchWorkspace(workspaceUid));
+
+      if (scanRoot) {
+        try {
+          await dispatch(setWorkspaceScanRootAction(workspacePath, scanRoot));
+          await dispatch(scanWorkspaceCollectionsAction(workspaceUid));
+        } catch (error) {
+          console.error('Collection discovery failed after creating the workspace', error);
+        }
+      }
 
       return result;
     } catch (error) {

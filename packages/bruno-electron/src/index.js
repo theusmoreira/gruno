@@ -48,6 +48,7 @@ const registerPreferencesIpc = require('./ipc/preferences');
 const registerSnapshotIpc = require('./ipc/snapshot');
 const registerSystemMonitorIpc = require('./ipc/system-monitor');
 const registerWorkspaceIpc = require('./ipc/workspace');
+const registerWorkspaceDiscoveryIpc = require('./ipc/workspace-discovery');
 const registerApiSpecIpc = require('./ipc/apiSpec');
 const registerGitIpc = require('./ipc/git');
 const registerOpenAPISyncIpc = require('./ipc/openapi-sync');
@@ -533,6 +534,7 @@ app.on('ready', async () => {
   registerPreferencesIpc(mainWindow, collectionWatcher);
   registerSnapshotIpc();
   registerWorkspaceIpc(mainWindow, workspaceWatcher);
+  registerWorkspaceDiscoveryIpc(mainWindow);
   registerApiSpecIpc(mainWindow, apiSpecWatcher);
   registerFilesystemIpc(mainWindow);
   registerSystemMonitorIpc(mainWindow, systemMonitor);

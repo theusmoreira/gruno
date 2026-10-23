@@ -45,6 +45,22 @@ export const workspacesSlice = createSlice({
       }
     },
 
+    setWorkspaceScanning: (state, action) => {
+      const { workspaceUid, scanning } = action.payload;
+      const workspace = state.workspaces.find((w) => w.uid === workspaceUid);
+      if (workspace) {
+        workspace.scan = { ...workspace.scan, scanning };
+      }
+    },
+
+    setWorkspaceScanSummary: (state, action) => {
+      const { workspaceUid, summary } = action.payload;
+      const workspace = state.workspaces.find((w) => w.uid === workspaceUid);
+      if (workspace) {
+        workspace.scan = { scanning: false, summary };
+      }
+    },
+
     addCollectionToWorkspace: (state, action) => {
       const { workspaceUid, collection } = action.payload;
       const workspace = state.workspaces.find((w) => w.uid === workspaceUid);
@@ -138,6 +154,8 @@ export const {
   addCollectionToWorkspace,
   removeCollectionFromWorkspace,
   updateWorkspaceLoadingState,
+  setWorkspaceScanning,
+  setWorkspaceScanSummary,
   workspaceDotEnvUpdateEvent,
   setWorkspaceDotEnvVariables,
   setWorkspaceScratchCollection
