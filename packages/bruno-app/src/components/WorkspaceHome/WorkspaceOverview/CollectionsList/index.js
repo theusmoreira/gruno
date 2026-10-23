@@ -370,6 +370,9 @@ const CollectionsList = ({ workspace }) => {
                       <StatusBadge status="warning" size="xs">Absent</StatusBadge>
                     </span>
                   )}
+                  {collection.failedToOpen && !isCollectionAbsent(collection, absentPaths) && (
+                    <StatusBadge status="danger" size="xs">Failed to open</StatusBadge>
+                  )}
                   {isNotCloned(collection) && (
                     <StatusBadge status="warning" size="xs">Not cloned</StatusBadge>
                   )}
