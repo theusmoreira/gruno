@@ -561,6 +561,8 @@ const registerWorkspaceIpc = (mainWindow, workspaceWatcher) => {
       const result = await removeCollectionFromWorkspace(workspacePath, collectionPath);
 
       if (result.removedCollection) {
+        require('./workspace-discovery').markCollectionIgnoredOnRemoval(workspacePath, collectionPath);
+
         // Detach and clear every cache keyed by this collection's (deterministic, path-derived)
         // uid — otherwise re-adding the same folder later resurfaces a stale mount/config/uid
         // cache instead of loading it fresh.
