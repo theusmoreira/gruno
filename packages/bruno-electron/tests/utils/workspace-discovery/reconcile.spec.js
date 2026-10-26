@@ -6,7 +6,7 @@ const OLD = '2026-10-01T08:00:00.000Z';
 const WS = path.resolve('/home/dev/workspace');
 const ROOT = path.resolve('/home/dev/repos');
 
-const abs = (repo, folder = 'gruno') => path.join(ROOT, repo, folder);
+const abs = (repo, folder = 'gruno') => path.join(ROOT, repo, folder).split(path.sep).join('/');
 const rel = (repo, folder = 'gruno') => path.relative(WS, abs(repo, folder)).split(path.sep).join('/');
 
 const found = (repo, folder = 'gruno') => ({ name: repo, path: abs(repo, folder), repo, folder });
