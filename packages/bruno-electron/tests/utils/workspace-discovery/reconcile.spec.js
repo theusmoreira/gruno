@@ -206,7 +206,7 @@ describe('reconcile', () => {
     });
 
     expect(result.nextRecords[0]).toMatchObject({
-      path: path.relative(WS, otherCollection),
+      path: path.relative(WS, otherCollection).split(path.sep).join('/'),
       status: 'present'
     });
     expect(result.summary.absent).toEqual([]);
