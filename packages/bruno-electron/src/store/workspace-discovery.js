@@ -70,9 +70,7 @@ class WorkspaceDiscoveryStore {
    * @returns {boolean} true only when a discovered record existed and was flagged
    */
   markIgnored(workspacePath, collectionPath) {
-    const relativePath = path.isAbsolute(collectionPath) || path.win32.isAbsolute(collectionPath)
-      ? toPosix(path.relative(workspacePath, collectionPath))
-      : toPosix(path.normalize(collectionPath));
+    const absolutePath = path.resolve(workspacePath, collectionPath);
 
     const entry = this._find(workspacePath);
     if (!entry) {
@@ -81,7 +79,8 @@ class WorkspaceDiscoveryStore {
 
     let flagged = false;
     const records = (entry.records || []).map((record) => {
-      if (!flagged && record.origin === 'discovered' && toPosix(record.path) === relativePath) {
+      const recordPath = path.resolve(workspacePath, record.path);
+      if (!flagged && record.origin === 'discovered' && toPosix(recordPath) === toPosix(absolutePath)) {
         flagged = true;
         return { ...record, ignored: true };
       }

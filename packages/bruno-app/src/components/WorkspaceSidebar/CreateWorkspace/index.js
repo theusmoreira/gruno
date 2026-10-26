@@ -256,21 +256,23 @@ const CreateWorkspace = ({ onClose }) => {
               onClick={browseScanFolder}
             />
             <div className="mt-1">
-              <span
+              <button
+                type="button"
                 className="text-link cursor-pointer hover:underline"
                 data-testid="workspace-scan-folder-browse"
                 onClick={browseScanFolder}
               >
                 Browse
-              </span>
+              </button>
               {formik.values.workspaceScanFolder ? (
-                <span
+                <button
+                  type="button"
                   className="text-link cursor-pointer hover:underline ml-3"
                   data-testid="workspace-scan-folder-clear"
                   onClick={() => formik.setFieldValue('workspaceScanFolder', '')}
                 >
                   Clear
-                </span>
+                </button>
               ) : null}
             </div>
           </div>

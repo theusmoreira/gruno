@@ -24,6 +24,7 @@ const wsEntry = (repo) => ({ name: repo, path: rel(repo) });
 
 const run = (input) => reconcile({
   workspacePath: WS,
+  scanRoot: ROOT,
   found: [],
   problems: [],
   records: [],
@@ -183,6 +184,32 @@ describe('reconcile', () => {
     expect(result.toAdd).toEqual([]);
     expect(result.summary.alreadyExisted).toBe(1);
     expect(result.nextRecords).toEqual([record('api', { lastSeen: NOW })]);
+  });
+
+  it('matches normalized relative paths in workspace entries', () => {
+    const result = run({
+      found: [found('api')],
+      workspaceCollections: [{ name: 'api', path: `./${rel('api')}/../gruno` }]
+    });
+
+    expect(result.toAdd).toEqual([]);
+    expect(result.summary.alreadyExisted).toBe(1);
+  });
+
+  it('does not mark records outside the current scan root absent', () => {
+    const otherRoot = path.join(ROOT, '..', 'another-folder');
+    const otherCollection = path.join(otherRoot, 'repo', 'gruno');
+    const result = run({
+      scanRoot: ROOT,
+      workspaceCollections: [{ name: 'api', path: path.relative(WS, otherCollection) }],
+      records: [record('api', { path: path.relative(WS, otherCollection) })]
+    });
+
+    expect(result.nextRecords[0]).toMatchObject({
+      path: path.relative(WS, otherCollection),
+      status: 'present'
+    });
+    expect(result.summary.absent).toEqual([]);
   });
 
   it('returns records sorted by path', () => {

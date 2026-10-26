@@ -104,6 +104,14 @@ describe('WorkspaceDiscoveryStore', () => {
       expect(store.getRecords(workspaceA)[0].ignored).toBe(true);
     });
 
+    it('matches absolute paths for records stored outside the workspace', () => {
+      const outsidePath = path.join('/home', 'user', 'repos', 'repo-a', 'gruno');
+      store.setRecords(workspaceA, [makeRecord({ path: outsidePath })]);
+
+      expect(store.markIgnored(workspaceA, outsidePath)).toBe(true);
+      expect(store.getRecords(workspaceA)[0].ignored).toBe(true);
+    });
+
     it('persists the flag', () => {
       store.setRecords(workspaceA, [makeRecord()]);
       store.markIgnored(workspaceA, '../repo-a/gruno');

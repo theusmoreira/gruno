@@ -174,6 +174,7 @@ describe('workspace discovery IPC orchestration', () => {
       expect(scanParentFolder).toHaveBeenCalledWith(scanRoot);
       expect(reconcile).toHaveBeenCalledWith({
         workspacePath,
+        scanRoot,
         found,
         problems,
         records: [],
@@ -206,7 +207,7 @@ describe('workspace discovery IPC orchestration', () => {
       expect(addCollectionsToWorkspace).toHaveBeenCalledWith(workspacePath, toAdd);
     });
 
-    it('does not write nor announce a config update when there is nothing to add, but still stores records and reports', async () => {
+    it('does not write when there is nothing to add but refreshes config, stores records and reports', async () => {
       const nextRecords = [{ path: 'x', status: 'absent' }];
       const summary = summaryWith({ absent: [{ name: 'x', path: '/x' }] });
       reconcile.mockReturnValue({ toAdd: [], nextRecords, summary });
@@ -216,7 +217,7 @@ describe('workspace discovery IPC orchestration', () => {
       expect(addCollectionsToWorkspace).not.toHaveBeenCalled();
       expect(mockStore.setRecords).toHaveBeenCalledWith(workspacePath, nextRecords);
       const channels = mainWindow.webContents.send.mock.calls.map((call) => call[0]);
-      expect(channels).toEqual([DISCOVERY_CHANNELS.SCAN_COMPLETED]);
+      expect(channels).toEqual(['main:workspace-config-updated', DISCOVERY_CHANNELS.SCAN_COMPLETED]);
     });
 
     it('sends the completed event on every scan', async () => {

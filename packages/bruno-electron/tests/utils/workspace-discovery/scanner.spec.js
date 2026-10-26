@@ -107,7 +107,7 @@ describe('scanParentFolder', () => {
     await expect(scanParentFolder('')).rejects.toThrow(/not set/);
   });
 
-  (isRoot ? it.skip : it)('turns an unreadable child into a problem without aborting the scan', async () => {
+  (isRoot || process.platform === 'win32' ? it.skip : it)('turns an unreadable child into a problem without aborting the scan', async () => {
     makeCollection('good', 'bruno');
     const locked = path.join(root, 'locked');
     makeCollection('locked', 'bruno');

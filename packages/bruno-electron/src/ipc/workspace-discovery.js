@@ -77,6 +77,7 @@ const runScan = async (mainWindow, workspacePath) => {
 
   const { toAdd, nextRecords, summary } = reconcile({
     workspacePath,
+    scanRoot,
     found,
     problems,
     records,
@@ -91,9 +92,7 @@ const runScan = async (mainWindow, workspacePath) => {
   store.setRecords(workspacePath, nextRecords);
 
   const workspaceUid = getWorkspaceUid(workspacePath);
-  if (toAdd.length) {
-    sendWorkspaceConfigUpdated(mainWindow, workspacePath, workspaceUid);
-  }
+  sendWorkspaceConfigUpdated(mainWindow, workspacePath, workspaceUid);
   mainWindow.webContents.send(DISCOVERY_CHANNELS.SCAN_COMPLETED, workspacePath, workspaceUid, summary);
 
   return summary;

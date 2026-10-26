@@ -3,13 +3,22 @@ const { makeRelativePath } = require('../workspace-config');
 const { COLLECTION_STATUS, COLLECTION_ORIGIN } = require('./types');
 
 const toKey = (workspacePath, value) => {
-  const relative = makeRelativePath(workspacePath, value || '');
-  const posix = relative.replace(/\\/g, '/');
-  return posix.length > 1 ? posix.replace(/\/+$/, '') : posix;
+  const normalized = String(value || '').replace(/\\/g, path.sep);
+  return path.resolve(workspacePath, normalized).replace(/\\/g, '/');
 };
 
 const toAbsolute = (workspacePath, key) => {
   return path.isAbsolute(key) ? key : path.resolve(workspacePath, key);
+};
+
+const toStoredPath = (workspacePath, key) => makeRelativePath(workspacePath, key);
+
+const isCoveredByScan = (scanRoot, key) => {
+  if (!scanRoot) return true;
+
+  const relative = path.relative(scanRoot, key);
+  return !path.isAbsolute(relative) && relative !== '..' && !relative.startsWith(`..${path.sep}`) &&
+    relative.split(path.sep).length === 2;
 };
 
 /**
@@ -19,7 +28,7 @@ const toAbsolute = (workspacePath, key) => {
  * @returns {import('./types').ReconcileResult}
  */
 const reconcile = (input) => {
-  const { workspacePath, found = [], problems = [], records = [], workspaceCollections = [], now } = input;
+  const { workspacePath, scanRoot, found = [], problems = [], records = [], workspaceCollections = [], now } = input;
 
   const workspaceByKey = new Map();
   for (const entry of workspaceCollections) {
@@ -52,7 +61,7 @@ const reconcile = (input) => {
     const record = recordsByKey.get(key);
 
     if (record && record.ignored) {
-      nextByKey.set(key, { ...record, path: key });
+      nextByKey.set(key, { ...record, path: toStoredPath(workspacePath, key) });
       continue;
     }
 
@@ -60,7 +69,7 @@ const reconcile = (input) => {
       alreadyExisted++;
       nextByKey.set(key, {
         ...(record || { origin: COLLECTION_ORIGIN.MANUAL, ignored: false }),
-        path: key,
+        path: toStoredPath(workspacePath, key),
         repo: item.repo,
         folder: item.folder,
         status: COLLECTION_STATUS.PRESENT,
@@ -72,7 +81,7 @@ const reconcile = (input) => {
     added++;
     toAdd.push({ name: item.name, path: item.path });
     nextByKey.set(key, {
-      path: key,
+      path: toStoredPath(workspacePath, key),
       repo: item.repo,
       folder: item.folder,
       status: COLLECTION_STATUS.PRESENT,
@@ -86,7 +95,12 @@ const reconcile = (input) => {
     if (foundByKey.has(key)) continue;
 
     if (record.ignored || record.origin === COLLECTION_ORIGIN.MANUAL) {
-      nextByKey.set(key, { ...record, path: key });
+      nextByKey.set(key, { ...record, path: toStoredPath(workspacePath, key) });
+      continue;
+    }
+
+    if (!isCoveredByScan(scanRoot, key)) {
+      nextByKey.set(key, { ...record, path: toStoredPath(workspacePath, key) });
       continue;
     }
 
@@ -96,7 +110,7 @@ const reconcile = (input) => {
       continue;
     }
 
-    nextByKey.set(key, { ...record, path: key, status: COLLECTION_STATUS.ABSENT });
+    nextByKey.set(key, { ...record, path: toStoredPath(workspacePath, key), status: COLLECTION_STATUS.ABSENT });
     absent.push({
       name: workspaceEntry.name || record.repo,
       path: toAbsolute(workspacePath, key)
