@@ -17,8 +17,9 @@ const isCoveredByScan = (scanRoot, key) => {
   if (!scanRoot) return true;
 
   const relative = path.relative(scanRoot, key);
-  return !path.isAbsolute(relative) && relative !== '..' && !relative.startsWith(`..${path.sep}`) &&
-    relative.split(path.sep).length === 2;
+  return !path.isAbsolute(relative) && relative !== '..'
+    && !relative.startsWith(`..${path.sep}`)
+    && relative.split(path.sep).length === 2;
 };
 
 /**
