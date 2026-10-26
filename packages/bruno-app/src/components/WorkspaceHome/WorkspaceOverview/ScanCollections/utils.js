@@ -13,10 +13,8 @@ export const getAbsentPaths = (summary) => {
   return new Set(((summary && summary.absent) || []).map((item) => normalizePath(item.path)));
 };
 
-// A collection is absent when the workspace lists it but its folder is gone from disk
-// (the unopenable list) or the last scan reported it as absent.
+// A collection is absent when the last scan reported it as absent.
 export const isCollectionAbsent = (collection, absentPaths) => {
   if (!collection) return false;
-  if (collection.failedToOpen) return true;
   return !!collection.pathname && !!absentPaths && absentPaths.has(normalizePath(collection.pathname));
 };

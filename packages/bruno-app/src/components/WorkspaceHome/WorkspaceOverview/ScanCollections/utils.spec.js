@@ -23,8 +23,8 @@ describe('hasScanDetails', () => {
 });
 
 describe('isCollectionAbsent', () => {
-  it('flags collections that could not be opened from disk', () => {
-    expect(isCollectionAbsent({ pathname: '/x', failedToOpen: true }, new Set())).toBe(true);
+  it('does not flag collections that merely failed to open', () => {
+    expect(isCollectionAbsent({ pathname: '/x', failedToOpen: true }, new Set())).toBe(false);
   });
 
   it('flags collections reported absent by the last scan', () => {
