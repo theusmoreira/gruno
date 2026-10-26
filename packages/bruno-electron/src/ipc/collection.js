@@ -1395,7 +1395,10 @@ const registerRendererEventHandlers = (mainWindow, watcher) => {
 
     if (workspacePath && workspacePath !== 'default') {
       try {
-        await removeCollectionFromWorkspace(workspacePath, collectionPath);
+        const result = await removeCollectionFromWorkspace(workspacePath, collectionPath);
+        if (result && result.removedCollection) {
+          require('./workspace-discovery').markCollectionIgnoredOnRemoval(workspacePath, collectionPath);
+        }
       } catch (error) {
         console.error('Error removing collection from workspace.yml:', error);
       }

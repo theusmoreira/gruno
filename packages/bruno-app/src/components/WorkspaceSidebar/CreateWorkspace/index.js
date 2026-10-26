@@ -28,7 +28,8 @@ const CreateWorkspace = ({ onClose }) => {
     initialValues: {
       workspaceName: '',
       workspaceFolderName: '',
-      workspaceLocation: defaultLocation
+      workspaceLocation: defaultLocation,
+      workspaceScanFolder: ''
     },
     validationSchema: Yup.object({
       workspaceName: Yup.string()
@@ -52,7 +53,7 @@ const CreateWorkspace = ({ onClose }) => {
       try {
         setIsSubmitting(true);
 
-        await dispatch(createWorkspaceAction(values.workspaceName.trim(), values.workspaceFolderName, values.workspaceLocation));
+        await dispatch(createWorkspaceAction(values.workspaceName.trim(), values.workspaceFolderName, values.workspaceLocation, values.workspaceScanFolder || undefined));
         toast.success('Workspace created!');
         onClose();
       } catch (error) {
@@ -72,6 +73,18 @@ const CreateWorkspace = ({ onClose }) => {
       })
       .catch((error) => {
         formik.setFieldValue('workspaceLocation', '');
+        console.error(error);
+      });
+  };
+
+  const browseScanFolder = () => {
+    dispatch(browseDirectory())
+      .then((dirPath) => {
+        if (typeof dirPath === 'string') {
+          formik.setFieldValue('workspaceScanFolder', dirPath);
+        }
+      })
+      .catch((error) => {
         console.error(error);
       });
   };
@@ -216,6 +229,51 @@ const CreateWorkspace = ({ onClose }) => {
               >
                 Browse
               </span>
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="workspace-scan-folder" className="font-semibold mb-2 flex items-center">
+              Folder to scan
+              <Help>
+                <p>
+                  Optional. Gruno looks one level down in this folder for repositories that contain a gruno, bruno or collection folder and adds their collections to the workspace.
+                </p>
+              </Help>
+            </label>
+            <input
+              id="workspace-scan-folder"
+              type="text"
+              name="workspaceScanFolder"
+              data-testid="workspace-scan-folder-input"
+              readOnly={true}
+              className="block textbox mt-2 w-full cursor-pointer"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
+              value={formik.values.workspaceScanFolder || ''}
+              onClick={browseScanFolder}
+            />
+            <div className="mt-1">
+              <button
+                type="button"
+                className="text-link cursor-pointer hover:underline"
+                data-testid="workspace-scan-folder-browse"
+                onClick={browseScanFolder}
+              >
+                Browse
+              </button>
+              {formik.values.workspaceScanFolder ? (
+                <button
+                  type="button"
+                  className="text-link cursor-pointer hover:underline ml-3"
+                  data-testid="workspace-scan-folder-clear"
+                  onClick={() => formik.setFieldValue('workspaceScanFolder', '')}
+                >
+                  Clear
+                </button>
+              ) : null}
             </div>
           </div>
         </form>

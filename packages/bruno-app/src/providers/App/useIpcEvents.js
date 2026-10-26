@@ -40,6 +40,7 @@ import { collectionAddEnvFileEvent, openCollectionEvent, hydrateCollectionWithUi
 import {
   workspaceOpenedEvent,
   workspaceConfigUpdatedEvent,
+  workspaceScanCompletedEvent,
   hydrateSnapshotForOpenedCollection,
   restoreActiveWorkspaceFromSnapshot
 } from 'providers/ReduxStore/slices/workspaces/actions';
@@ -167,6 +168,10 @@ const useIpcEvents = () => {
 
     const removeWorkspaceConfigUpdatedListener = ipcRenderer.on('main:workspace-config-updated', (workspacePath, workspaceUid, workspaceConfig) => {
       dispatch(workspaceConfigUpdatedEvent(workspacePath, workspaceUid, workspaceConfig));
+    });
+
+    const removeWorkspaceScanCompletedListener = ipcRenderer.on('main:workspace-scan-completed', (workspacePath, workspaceUid, summary) => {
+      dispatch(workspaceScanCompletedEvent(workspacePath, workspaceUid, summary));
     });
 
     const removeWorkspaceEnvironmentAddedListener = ipcRenderer.on('main:workspace-environment-added', (workspaceUid, file) => {
@@ -449,6 +454,7 @@ const useIpcEvents = () => {
       removeOpenCollectionModalListener();
       removeWorkspacesReadyListener();
       removeWorkspaceConfigUpdatedListener();
+      removeWorkspaceScanCompletedListener();
       removeWorkspaceEnvironmentAddedListener();
       removeWorkspaceEnvironmentChangedListener();
       removeWorkspaceEnvironmentDeletedListener();

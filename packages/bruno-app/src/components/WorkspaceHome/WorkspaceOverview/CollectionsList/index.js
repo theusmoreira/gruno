@@ -24,6 +24,8 @@ import DeleteCollection from 'components/Sidebar/Collections/Collection/DeleteCo
 import ShareCollection from 'components/ShareCollection';
 import Dropdown from 'components/Dropdown';
 import StatusBadge from 'ui/StatusBadge';
+import ScanCollections from '../ScanCollections';
+import { getAbsentPaths, isCollectionAbsent } from '../ScanCollections/utils';
 import ConnectGitRemote from './ConnectGitRemote';
 import RemoveGitRemote from './RemoveGitRemote';
 import StyledWrapper from './StyledWrapper';
@@ -43,6 +45,8 @@ const CollectionsList = ({ workspace }) => {
   const [showRemoveGitModal, setShowRemoveGitModal] = useState(false);
 
   const isDefaultWorkspace = workspace?.type === 'default';
+
+  const absentPaths = useMemo(() => getAbsentPaths(workspace.scan?.summary), [workspace.scan?.summary]);
 
   const isNotCloned = (collection) => !isDefaultWorkspace && collection.notFoundLocally;
 
@@ -330,6 +334,8 @@ const CollectionsList = ({ workspace }) => {
         />
       )}
 
+      {!isDefaultWorkspace && <ScanCollections workspace={workspace} />}
+
       <div className="collections-list">
         {workspaceCollections.length === 0 ? (
           <div className="empty-state">
@@ -359,7 +365,12 @@ const CollectionsList = ({ workspace }) => {
                       Git
                     </StatusBadge>
                   )}
-                  {collection.failedToOpen && (
+                  {isCollectionAbsent(collection, absentPaths) && (
+                    <span data-testid="collection-absent-badge">
+                      <StatusBadge status="warning" size="xs">Absent</StatusBadge>
+                    </span>
+                  )}
+                  {collection.failedToOpen && !isCollectionAbsent(collection, absentPaths) && (
                     <StatusBadge status="danger" size="xs">Failed to open</StatusBadge>
                   )}
                   {isNotCloned(collection) && (
