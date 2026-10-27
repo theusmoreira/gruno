@@ -200,19 +200,17 @@ test('keeps the pre-rename localStorage keys for the inherited accordion', async
     await headers.toggleInherited().click();
     await expect(headers.toggleInherited()).toHaveText('Hide Additional Headers');
 
-    const stored = await page.evaluate(() => {
-      const showKeys = Object.keys(localStorage).filter((key) => key.includes('request-show-default-headers-'));
-      const expandKeys = Object.keys(localStorage).filter((key) => key.includes('request-default-headers-expanded-'));
-      return {
-        showKeys,
-        expandKeys,
-        showValue: showKeys[0] ? JSON.parse(localStorage.getItem(showKeys[0]) || 'null') : null
-      };
-    });
-
-    expect(stored.showKeys.length).toBeGreaterThan(0);
-    expect(stored.expandKeys.length).toBeGreaterThan(0);
-    expect(stored.showValue).toBe(true);
+    await expect.poll(async () => {
+      return page.evaluate(() => {
+        const showKeys = Object.keys(localStorage).filter((key) => key.includes('request-show-default-headers-'));
+        const expandKeys = Object.keys(localStorage).filter((key) => key.includes('request-default-headers-expanded-'));
+        return {
+          hasShowKeys: showKeys.length > 0,
+          hasExpandKeys: expandKeys.length > 0,
+          showValue: showKeys[0] ? JSON.parse(localStorage.getItem(showKeys[0]) || 'null') : null
+        };
+      });
+    }).toEqual({ hasShowKeys: true, hasExpandKeys: true, showValue: true });
   });
 });
 

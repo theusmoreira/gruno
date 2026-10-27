@@ -122,6 +122,9 @@ test.describe('Multipart Form - Multiple File Upload', () => {
   // Removes a single file by name, handling inline-chip and overflow-row paths.
   const removeFileByName = async (page: Page, fileName: string) => {
     const inlineChip = page.getByTestId('multipart-file-chip').filter({ hasText: fileName });
+    await expect(
+      inlineChip.or(page.getByTestId('multipart-file-summary')).or(page.getByTestId('multipart-file-more')).first()
+    ).toBeVisible();
     if ((await inlineChip.count()) > 0) {
       await inlineChip.getByTestId('multipart-file-chip-remove').click();
       await expect(inlineChip).toHaveCount(0);
