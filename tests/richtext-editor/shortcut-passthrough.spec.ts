@@ -119,6 +119,7 @@ test.describe('Rich Text Editor - Keyboard Shortcut with Global Hotkeys (remappe
         await page.keyboard.press('ArrowLeft');
       }
       await page.keyboard.up('Shift');
+      await expect.poll(async () => page.evaluate(() => window.getSelection()?.toString())).toBe('World');
     });
 
     await test.step('Cmd/Ctrl+B only bolds the selection. it does not open Preferences', async () => {
